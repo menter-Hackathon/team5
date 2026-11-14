@@ -12,7 +12,9 @@
 |---|---|
 | [docs/requirements.md](docs/requirements.md) | 要件定義（何を作るか） |
 | [docs/tasks.md](docs/tasks.md) | タスク一覧と前後関係 |
-| [docs/workflow.md](docs/workflow.md) | 開発の進め方（ブランチ・PR・Unityのルール） |
+| [docs/workflow.md](docs/workflow.md) | 開発の進め方（ブランチ・PR・Unityのルール・AIの使い方） |
+| [docs/architecture.md](docs/architecture.md) | 設計書（クラス名・フォルダ・データの形）。AIでコードを書くときに必ず渡す |
+| [タスクのボード](https://github.com/orgs/menter-Hackathon/projects/1) | GitHub Project |
 | docs/game-design/ | 企画タスクで決めた仕様 |
 
 ## 開発環境

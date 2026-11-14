@@ -29,6 +29,12 @@ def md(s):
     return f"{x.month}/{x.day}({WEEK[x.weekday()]})"
 
 
+def link(t):
+    n = t.get("issue")
+    label = f"{t['id']} {t['title']}"
+    return f"[{label}](https://github.com/menter-Hackathon/team5/issues/{n})" if n else label
+
+
 def period(t):
     return md(t["start"]) if t["start"] == t["due"] else f"{md(t['start'])}〜{md(t['due'])}"
 
@@ -101,7 +107,7 @@ L = []
 w = L.append
 w("# タスク一覧")
 w("")
-w("> このファイルは `tools/tasks.json` から `python3 tools/build_tasks_md.py` で作っています。直接編集せず tasks.json を直してください。")
+w("> このファイルは `tools/tasks.json` と `tools/specs/` から `python3 tools/build_tasks_md.py` で作っています。直接編集せず tasks.json を直してください。")
 w("> GitHub に登録した後は、Issue と Project ボードの方が最新です。")
 w("")
 w(f"全 {len(tasks)} タスク（P0: {sum(t['priority']=='P0' for t in tasks)} / P1: {sum(t['priority']=='P1' for t in tasks)} / P2: {sum(t['priority']=='P2' for t in tasks)}）")
@@ -129,7 +135,7 @@ for s in DATA["streams"]:
     w("| ID | タスク | 優先度 | 期間 |")
     w("|---|---|---|---|")
     for t in mine:
-        w(f"| [{t['id']}](#{t['id'].lower()}) | {t['title']} | {t['priority']} | {period(t)} |")
+        w(f"| [{t['id']}](#{t['id'].lower()}) | {('#'+str(t['issue'])+' ') if t.get('issue') else ''}{t['title']} | {t['priority']} | {period(t)} |")
     w("")
     w(f"- 他の領域から受け取るもの：{', '.join(waits) or 'なし'}")
     w(f"- 他の領域に渡すもの：{', '.join(gives) or 'なし'}")
@@ -152,7 +158,7 @@ for m in DATA["milestones"]:
     for t in tasks:
         if t["milestone"] != m["id"]:
             continue
-        title = t["title"] + (" 🗣" if t.get("needs_discussion") else "")
+        title = (f"#{t['issue']} " if t.get("issue") else "") + t["title"] + (" 🗣" if t.get("needs_discussion") else "")
         w(f"| [{t['id']}](#{t['id'].lower()}) | {title} | {streams[t['stream']]['emoji']} {streams[t['stream']]['name']} | {t['priority']} | {period(t)} | "
           f"{', '.join(t['deps']) or '－'} | {', '.join(succ[t['id']]) or '－'} |")
 w("")
@@ -186,31 +192,25 @@ w("  classDef p0 stroke-width:3px")
 w(f"  class {','.join(p0)} p0")
 w("```")
 w("")
-w("## 各タスクの詳細")
+w("## 各タスクの概要")
 w("")
-w("GitHub の Issue 本文はここと同じ内容になります。")
-for t in tasks:
+w("作るもの・仕様・完了条件などの詳細は各 Issue に書いてあります（元の文章は `tools/specs/`）。")
+for s_ in DATA["streams"]:
     w("")
-    w(f"### {t['id']}")
-    w("")
-    w(f"**[{t['category']}] {t['title']}**　{streams[t['stream']]['emoji']} {streams[t['stream']]['name']} / {t['priority']} / {ms[t['milestone']]['title']} / {period(t)}"
-      + ("　`要審議`" if t.get("needs_discussion") else ""))
-    w("")
-    w("#### 概要")
-    w(t["summary"])
-    w("")
-    w("#### やること")
-    for x in t["todo"]:
-        w(f"- [ ] {x}")
-    w("")
-    w("#### 完了条件")
-    w(t["done"])
-    w("")
-    w("#### 前提タスク")
-    w("\n".join(f"- {x} {by_id[x]['title']}" for x in t["deps"]) or "- なし")
-    w("")
-    w("#### 後続タスク")
-    w("\n".join(f"- {x} {by_id[x]['title']}" for x in succ[t["id"]]) or "- なし")
+    w(f"### {s_['emoji']} {s_['name']}")
+    for x in s_["tasks"]:
+        t = by_id[x]
+        w("")
+        w(f"#### {t['id']}")
+        w("")
+        head = f"**{link(t)}**　{t['priority']} / {ms[t['milestone']]['title']} / {period(t)}"
+        if t.get("parent"):
+            head += f" / 親：{link(by_id[t['parent']])}"
+        if t.get("needs_discussion"):
+            head += "　`要審議`"
+        w(head)
+        w("")
+        w(t["summary"])
 
 OUT.write_text("\n".join(L) + "\n", encoding="utf-8")
 print(f"{OUT.relative_to(ROOT)} を更新しました（{len(tasks)} タスク）")
