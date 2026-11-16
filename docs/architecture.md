@@ -200,12 +200,12 @@ public class GameBalance : ScriptableObject
     public float individualityInitial = 50f;
     public float individualityMax = 100f;
     public float debuffThreshold = 20f;     // これ未満で移動速度が落ちる
-    public float debuffSpeedMultiplier = 0.6f;
+    public float debuffSpeedMultiplier = 0.7f;
     [Header("村の平和度")]
-    public float peaceInitial = 100f;
+    public float peaceInitial = 70f;
     public float peaceMax = 100f;
     public float caughtPeacePenalty = 25f;  // らしくない行動を見られたとき
-    public float caughtCooldownSeconds = 2f; // 連続で減りすぎないための間隔
+    public float caughtCooldownSeconds = 3f; // 連続で減りすぎないための間隔
     [Header("ロールへの進み具合")]
     public float roleProgressMax = 100f;
     public float roleProgressToWin = 100f;
@@ -243,7 +243,7 @@ public class TaskDefinition : ScriptableObject
     public float timeLimitSeconds = 30f; // この時間内にやらないと失敗（0なら無制限）
     public float peaceReward = 10f;          // 完了で平和度 +
     public float individualityCost = 10f;    // 完了で個性 -
-    public float failPeacePenalty = 10f;     // 失敗で平和度 -
+    public float failPeacePenalty = 15f;     // 失敗で平和度 -
 }
 
 public enum ItemCategory { Material, Food, Outfit, Goal, Misc }

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1a7884b024eff44e9e6b90e071627ed, type: 3}
+  m_Name: GameBalance
+  m_EditorClassIdentifier: 
+  timeLimitSeconds: 300
+  individualityInitial: 50
+  individualityMax: 100
+  debuffThreshold: 20
+  debuffSpeedMultiplier: 0.7
+  peaceInitial: 70
+  peaceMax: 100
+  caughtPeacePenalty: 25
+  caughtCooldownSeconds: 3
+  roleProgressMax: 100
+  roleProgressToWin: 100
+  taskIntervalSeconds: 20

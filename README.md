@@ -19,7 +19,8 @@
 
 ## 開発環境
 
-- Unity（バージョンは BS-01 で決定）
+- Unity **6000.0.85f2**（Unity 6 LTS）。Unity Hub の「インストール」→「エディターをインストール」から同じバージョンを入れる
+- テンプレート：Universal 3D（URP）／パッケージ：Input System、Cinemachine 3.x、AI Navigation
 - 開き方：Unity Hub →「Add」→ このリポジトリのフォルダを選ぶ
 
 ## スケジュール
