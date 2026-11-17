@@ -2245,6 +2245,7 @@ MonoBehaviour:
   Tasks: {fileID: 786652964}
   Inventory: {fileID: 786652963}
   Crafting: {fileID: 786652962}
+  fallbackRole: {fileID: 11400000, guid: 5d2153efe25ed2f4a9368a3eeeaf851c, type: 2}
 --- !u!4 &786652970
 Transform:
   m_ObjectHideFlags: 0
