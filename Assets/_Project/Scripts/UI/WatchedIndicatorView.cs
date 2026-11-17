@@ -6,11 +6,15 @@ using UnityEngine.UI;
 namespace Team5.UI
 {
     // 画面上部に「見られている！」、見つかったら「見つかった！ 平和度 -25」を出す仮UI（目のアイコンは CD-14）
+    // 禁止ゾーン（CD-21）にいる間は「道から外れている」も出す
     public class WatchedIndicatorView : MonoBehaviour
     {
         [SerializeField] private Text watchedLabel;
         [SerializeField] private Text caughtLabel;
         [SerializeField] private float caughtDisplaySeconds = 1.5f;
+        [SerializeField] private Text offRoadLabel;
+        [SerializeField] private Color offRoadWatchedColor = new(0.839f, 0.235f, 0.259f);
+        [SerializeField] private Color offRoadUnwatchedColor = new(0.5f, 0.5f, 0.5f);
 
         private SurveillanceManager surveillance;
         private float caughtHideTime;
@@ -54,6 +58,15 @@ namespace Team5.UI
         private void Update()
         {
             if (caughtLabel.gameObject.activeSelf && Time.time >= caughtHideTime) caughtLabel.gameObject.SetActive(false);
+            UpdateOffRoad();
+        }
+
+        private void UpdateOffRoad()
+        {
+            if (offRoadLabel == null) return;
+            bool offRoad = ForbiddenZone.IsPlayerInside;
+            if (offRoadLabel.gameObject.activeSelf != offRoad) offRoadLabel.gameObject.SetActive(offRoad);
+            if (offRoad) offRoadLabel.color = surveillance.IsPlayerWatched ? offRoadWatchedColor : offRoadUnwatchedColor;
         }
     }
 }
