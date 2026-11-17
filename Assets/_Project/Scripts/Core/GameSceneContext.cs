@@ -1,6 +1,7 @@
 using Team5.Data;
 using Team5.Items;
 using Team5.NPC;
+using Team5.Player;
 using Team5.Tasks;
 using UnityEngine;
 
@@ -19,6 +20,10 @@ namespace Team5.Core
         public Inventory Inventory;
         public CraftingSystem Crafting;
 
+        [SerializeField] private RoleDefinition fallbackRole; // Game シーンを直接再生したとき（GameManager がいないとき）のロール
+
+        private PlayerInputReader input;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -29,9 +34,30 @@ namespace Team5.Core
             Instance = this;
         }
 
+        private void Start()
+        {
+            if (Instance != this) return;
+
+            var manager = GameManager.Instance;
+            RoleDefinition role = manager != null && manager.CurrentRole != null ? manager.CurrentRole : fallbackRole;
+
+            if (Player != null && Player.TryGetComponent(out input)) input.OnPause += TogglePause;
+
+            Timer.StartTimer(Balance.timeLimitSeconds);
+            Tasks.Begin(role);
+        }
+
         private void OnDestroy()
         {
+            if (input != null) input.OnPause -= TogglePause;
             if (Instance == this) Instance = null;
+        }
+
+        private void TogglePause()
+        {
+            var manager = GameManager.Instance;
+            if (manager == null) return;
+            manager.SetPaused(manager.State != GameState.Paused);
         }
     }
 }

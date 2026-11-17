@@ -1,8 +1,7 @@
 using System;
 using Team5.Data;
 using UnityEngine;
-
-#pragma warning disable CS0067 // 雛形のため、まだ呼ばれないイベントの警告を止める（CD-04 で実装したら消す）
+using UnityEngine.SceneManagement;
 
 namespace Team5.Core
 {
@@ -35,24 +34,43 @@ namespace Team5.Core
         // Game シーンを読み込み Playing にする
         public void StartGame(RoleDefinition role)
         {
-            Debug.Log("TODO: GameManager.StartGame");
+            CurrentRole = role;
+            LastResult = GameResult.None;
+            Time.timeScale = 1f;
+            var load = SceneManager.LoadSceneAsync(SceneNames.Game);
+            load.completed += _ => SetState(GameState.Playing);
         }
 
         // Result シーンへ
         public void EndGame(GameResult result, GameResultSummary summary)
         {
-            Debug.Log("TODO: GameManager.EndGame");
+            LastResult = result;
+            LastSummary = summary;
+            Time.timeScale = 1f;
+            SetState(GameState.Result);
+            SceneManager.LoadScene(SceneNames.Result);
         }
 
         public void ReturnToTitle()
         {
-            Debug.Log("TODO: GameManager.ReturnToTitle");
+            Time.timeScale = 1f;
+            SetState(GameState.Title);
+            SceneManager.LoadScene(SceneNames.Title);
         }
 
         // Time.timeScale を 0/1 にする
         public void SetPaused(bool paused)
         {
-            Debug.Log("TODO: GameManager.SetPaused");
+            if (State != GameState.Playing && State != GameState.Paused) return;
+            Time.timeScale = paused ? 0f : 1f;
+            SetState(paused ? GameState.Paused : GameState.Playing);
+        }
+
+        private void SetState(GameState state)
+        {
+            if (State == state) return;
+            State = state;
+            OnStateChanged?.Invoke(state);
         }
     }
 }
