@@ -184,6 +184,7 @@ GameObject:
   - component: {fileID: 4990860454941317030}
   - component: {fileID: 333358904922444413}
   - component: {fileID: 4272277446376268315}
+  - component: {fileID: 8895325163602742060}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -262,3 +263,17 @@ MonoBehaviour:
   groundedStickVelocity: -2
   speedMultiplier: 1
   canMove: 1
+--- !u!114 &8895325163602742060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5182871711497399844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1c6ee8e8168eb14a925ad26f53055ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  range: 1.5
+  sensorHeight: 0.8
