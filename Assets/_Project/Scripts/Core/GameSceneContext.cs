@@ -19,6 +19,7 @@ namespace Team5.Core
         public TaskManager Tasks;
         public Inventory Inventory;
         public CraftingSystem Crafting;
+        public RoleDefinition Role { get; private set; } // 今回のロール（Start で決まる）
 
         [SerializeField] private RoleDefinition fallbackRole; // Game シーンを直接再生したとき（GameManager がいないとき）のロール
 
@@ -39,12 +40,12 @@ namespace Team5.Core
             if (Instance != this) return;
 
             var manager = GameManager.Instance;
-            RoleDefinition role = manager != null && manager.CurrentRole != null ? manager.CurrentRole : fallbackRole;
+            Role = manager != null && manager.CurrentRole != null ? manager.CurrentRole : fallbackRole;
 
             if (Player != null && Player.TryGetComponent(out input)) input.OnPause += TogglePause;
 
             Timer.StartTimer(Balance.timeLimitSeconds);
-            Tasks.Begin(role);
+            Tasks.Begin(Role);
         }
 
         private void OnDestroy()
