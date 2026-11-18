@@ -101,7 +101,9 @@ namespace Team5.UI
                 return;
             }
 
-            var role = context.Role;
+            // GameSceneContext.Role は GameSceneContext.Start で決まるので、先に呼ばれたときは GameManager から取る
+            var manager = GameManager.Instance;
+            var role = context.Role != null ? context.Role : manager != null ? manager.CurrentRole : null;
             if (role != null)
             {
                 roleProgressLabel.text = $"{role.displayName}への進み具合";
