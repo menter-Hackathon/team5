@@ -21,6 +21,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 592ad63bbbe544c5594b765515ad07d0, type: 2}
   - {fileID: 11400000, guid: 0a07315dc32e64b2991d0b8a85ab95a3, type: 2}
   - {fileID: 11400000, guid: 1ff7e9160050746fb93b44374920952d, type: 2}
-  recipes: []
-  goalItem: {fileID: 0}
+  recipes:
+  - {fileID: 11400000, guid: 54ba6fb6c5889459486293e7d111d349, type: 2}
+  goalItem: {fileID: 11400000, guid: 79a6662b0bd8040a581f626eeca116fd, type: 2}
   outfits: []
