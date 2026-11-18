@@ -20,6 +20,9 @@ namespace Team5.Player
         // ほかの処理が CanMove を止められるように公開する
         public PlayerMover Mover { get; private set; }
 
+        // E を押し続けているか（TaskSpot の長押しに使う）
+        public bool IsHoldingInteract => input != null && input.InteractHeld;
+
         private readonly Collider[] hits = new Collider[16];
         private PlayerInputReader input;
         private int layerMask;
