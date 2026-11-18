@@ -22,7 +22,7 @@ namespace Team5.Tasks
             get
             {
                 var task = CurrentTask();
-                return task != null ? $"[E長押し] {task.Definition.title}" : "";
+                return task != null ? $"長押し：{task.Definition.title}" : ""; // 画面には「[E] 長押し：素振りをする」と出る
             }
         }
 
