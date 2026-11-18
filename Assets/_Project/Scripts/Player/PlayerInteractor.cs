@@ -20,6 +20,9 @@ namespace Team5.Player
         // ほかの処理が CanMove を止められるように公開する
         public PlayerMover Mover { get; private set; }
 
+        // E を押し続けているか（TaskSpot の長押しに使う）
+        public bool IsHoldingInteract => input != null && input.InteractHeld;
+
         private readonly Collider[] hits = new Collider[16];
         private PlayerInputReader input;
         private int layerMask;
@@ -74,7 +77,9 @@ namespace Team5.Player
             if (Current == null || (Current is UnityEngine.Object obj && obj == null)) return;
 
             var context = GameSceneContext.Instance;
-            if (context != null && context.Surveillance != null) context.Surveillance.ReportAction(Current.IsSuspicious);
+            // npc.md：見つかったら、その行動はできない（拾えない）
+            bool caught = context != null && context.Surveillance != null && context.Surveillance.ReportAction(Current.IsSuspicious);
+            if (caught) return;
             Current.Interact(this);
         }
 

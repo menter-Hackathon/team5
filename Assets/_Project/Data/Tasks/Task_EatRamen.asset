@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 217c349596d909946b465c4f54436b85, type: 3}
+  m_Name: Task_EatRamen
+  m_EditorClassIdentifier: 
+  taskId: eat_ramen
+  title: "\u8F9B\u30E9\u30FC\u30E1\u30F3\u3092\u98DF\u3079\u308B"
+  request: "\u300C\u6751\u306E\u98DF\u5802\u3067\u8F9B\u30E9\u30FC\u30E1\u30F3\u3092\u98DF\u3079\u306A\u3055\u3044\u3002\u52C7\u8005\u306F\u8F9B\u3055\u306B\u8010\u3048\u308B\u3082\u306E\u3060\u300D"
+  type: 0
+  targetSpotId: canteen
+  requiredItem: {fileID: 0}
+  requiredCount: 1
+  actionSeconds: 4
+  timeLimitSeconds: 40
+  peaceReward: 10
+  individualityCost: 10
+  failPeacePenalty: 15
+  rewardItem: {fileID: 11400000, guid: ed467a0f71e3c034280e7ef867b08864, type: 2}
+  rewardCount: 1

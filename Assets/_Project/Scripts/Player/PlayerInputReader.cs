@@ -10,6 +10,7 @@ namespace Team5.Player
     public class PlayerInputReader : MonoBehaviour
     {
         public Vector2 Move { get; private set; }
+        public bool InteractHeld => !IsInputBlocked() && controls.Player.Interact.IsPressed(); // 長押しの判定用（CD-09b）
         public event Action OnInteract;
         public event Action OnInventory;
         public event Action OnPause;

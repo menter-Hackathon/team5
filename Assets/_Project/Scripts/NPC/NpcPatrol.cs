@@ -12,6 +12,7 @@ namespace Team5.NPC
         [SerializeField] private bool loop = true;         // false なら最後まで行ったら逆順
         [SerializeField] private float moveSpeed = 2f;
         [SerializeField] private float lookAroundAngle = 60f; // 待っている間に左右へ振る角度
+        [SerializeField] private float[] waitOverrides;      // ポイントごとの待ち時間（0 以下なら waitSeconds）。map.md：おかみは裏口で長く見張る
 
         private NavMeshAgent agent;
         private int index;
@@ -71,7 +72,8 @@ namespace Team5.NPC
         private void LookAround()
         {
             waitElapsed += Time.deltaTime;
-            float t = waitSeconds > 0f ? waitElapsed / waitSeconds : 1f;
+            float wait = CurrentWait();
+            float t = wait > 0f ? waitElapsed / wait : 1f;
             float yaw = baseYaw + Mathf.Sin(t * Mathf.PI * 2f) * lookAroundAngle;
             transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
@@ -80,6 +82,12 @@ namespace Team5.NPC
             waiting = false;
             agent.updateRotation = true;
             GoTo(NextIndex());
+        }
+
+        private float CurrentWait()
+        {
+            if (waitOverrides != null && index < waitOverrides.Length && waitOverrides[index] > 0f) return waitOverrides[index];
+            return waitSeconds;
         }
 
         private int NextIndex()

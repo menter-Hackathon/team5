@@ -1,7 +1,7 @@
 using System;
 using Team5.Data;
+using Team5.UI;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Team5.Core
 {
@@ -37,8 +37,7 @@ namespace Team5.Core
             CurrentRole = role;
             LastResult = GameResult.None;
             Time.timeScale = 1f;
-            var load = SceneManager.LoadSceneAsync(SceneNames.Game);
-            load.completed += _ => SetState(GameState.Playing);
+            SceneFader.Instance.LoadScene(SceneNames.Game, () => SetState(GameState.Playing));
         }
 
         // Result シーンへ
@@ -48,14 +47,14 @@ namespace Team5.Core
             LastSummary = summary;
             Time.timeScale = 1f;
             SetState(GameState.Result);
-            SceneManager.LoadScene(SceneNames.Result);
+            SceneFader.Instance.LoadScene(SceneNames.Result);
         }
 
         public void ReturnToTitle()
         {
             Time.timeScale = 1f;
             SetState(GameState.Title);
-            SceneManager.LoadScene(SceneNames.Title);
+            SceneFader.Instance.LoadScene(SceneNames.Title);
         }
 
         // Time.timeScale を 0/1 にする
