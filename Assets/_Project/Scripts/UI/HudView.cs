@@ -105,16 +105,7 @@ namespace Team5.UI
             }
 
             // GameSceneContext.Role は GameSceneContext.Start で決まるので、先に呼ばれたときは GameManager から取る
-            var manager = GameManager.Instance;
-            var role = context.Role != null ? context.Role : manager != null ? manager.CurrentRole : null;
-            if (role != null)
-            {
-                roleProgressLabel.text = $"{role.displayName}への進み具合";
-                roleName.text = role.displayName;
-                individuality.icon.color = role.roleColor;
-                individuality.fill.GetComponent<Image>().color = role.roleColor;
-                roleProgress.icon.color = role.roleColor;
-            }
+            ApplyRole();
 
             context.Parameters.OnChanged += HandleParameterChanged;
             context.Timer.OnTick += HandleTick;
@@ -141,6 +132,22 @@ namespace Team5.UI
             caughtGroup.alpha = 0f;
             vignette.alpha = 0f;
             promptGroup.alpha = 0f;
+        }
+
+        // ロールの名前と色を出す。Game シーンを直接再生したときは GameSceneContext.Start のあとで決まるので、決まるまで毎フレーム試す
+        private bool roleApplied;
+
+        private void ApplyRole()
+        {
+            var manager = GameManager.Instance;
+            var role = context.Role != null ? context.Role : manager != null ? manager.CurrentRole : null;
+            if (role == null) return;
+            roleProgressLabel.text = $"{role.displayName}への進み具合";
+            roleName.text = role.displayName;
+            individuality.icon.color = role.roleColor;
+            individuality.fill.GetComponent<Image>().color = role.roleColor;
+            roleProgress.icon.color = role.roleColor;
+            roleApplied = true;
         }
 
         private void OnDestroy()
@@ -386,6 +393,7 @@ namespace Team5.UI
 
         private void Update()
         {
+            if (!roleApplied) ApplyRole();
             UpdateGauge(individuality, context.Parameters.Get(ParameterType.Individuality) < context.Balance.debuffThreshold);
             UpdateGauge(peace, false);
             UpdateGauge(roleProgress, false);
