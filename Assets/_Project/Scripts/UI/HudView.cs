@@ -90,6 +90,9 @@ namespace Team5.UI
         private float caughtTime = -100f;
         private float promptTarget;
         private float caughtToastY;
+        private RectTransform taskCard;
+        private RectTransform watchedPanel;
+        private RectTransform timerPanel;
 
         private void Start()
         {
@@ -131,6 +134,9 @@ namespace Team5.UI
             HandlePhaseChanged(context.Surveillance.CurrentPhase);
             HandleFocusChanged(interactor != null ? interactor.Current : null);
 
+            taskCard = (RectTransform)transform.Find("Task");
+            watchedPanel = (RectTransform)transform.Find("Watched");
+            timerPanel = (RectTransform)transform.Find("Timer");
             caughtToastY = caughtToast.anchoredPosition.y;
             caughtGroup.alpha = 0f;
             vignette.alpha = 0f;
@@ -182,6 +188,9 @@ namespace Team5.UI
             gauge.delta.color = diff > 0 ? new Color(0.557f, 0.608f, 0.498f) : WarningOnDark;
             gauge.delta.gameObject.SetActive(true);
             gauge.deltaHideTime = Time.time + DeltaSeconds;
+            UiFx.Punch(this, gauge.value.transform, 0.35f);
+            UiFx.Punch(this, gauge.icon.transform, 0.3f);
+            UiFx.Punch(this, gauge.delta.transform, 0.4f);
             if (diff < 0) gauge.ghostHoldUntil = Time.time + GaugeSeconds; // 下がった分をしばらく残す
         }
 
@@ -229,6 +238,7 @@ namespace Team5.UI
             var color = seconds <= 30 ? WarningOnDark : Color.white;
             timerText.color = color;
             timerIcon.color = color;
+            if (seconds <= 30 && seconds > 0 && timerPanel != null) UiFx.Punch(this, timerPanel, seconds <= 10 ? 0.12f : 0.06f); // 残りわずかで脈打つ
         }
 
         // ---------- お題 ----------
@@ -239,6 +249,12 @@ namespace Team5.UI
             bool active = task != null && task.State == TaskState.Active;
             taskBody.SetActive(active);
             taskWaiting.gameObject.SetActive(!active);
+            if (taskCard != null && task != null)
+            {
+                if (active) UiFx.SlideIn(this, taskCard, new Vector2(-90f, 0f));
+                else if (task.State == TaskState.Completed) { UiFx.Punch(this, taskCard, 0.08f); UiFx.Flash(this, taskWaiting, new Color(0.557f, 0.608f, 0.498f)); }
+                else UiFx.Shake(this, taskCard);
+            }
             if (!active)
             {
                 taskWaiting.text = task == null ? "次のお題を待っています"
@@ -331,12 +347,14 @@ namespace Team5.UI
             watchedTitle.color = watched ? WarningOnDark : Color.white;
             watchedSub.text = watched ? "らしく ふるまおう" : "今なら こっそり動ける";
             vignetteTarget = watched ? 1f : 0f;
+            if (watchedPanel != null) UiFx.Punch(this, watchedPanel, watched ? 0.12f : 0.05f);
         }
 
         private void HandleCaught(VisionSensor watcher)
         {
             caughtPenalty.text = $"平和度 −{context.Balance.caughtPeacePenalty:0}";
             caughtTime = Time.time;
+            UiFx.Shake(this, (RectTransform)transform.Find("Parameters"), 10f);
         }
 
         private void UpdateWatched()

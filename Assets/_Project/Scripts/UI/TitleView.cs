@@ -13,6 +13,29 @@ namespace Team5.UI
         [SerializeField] private GameObject settingsPanel;
         [SerializeField] private UnityEvent<bool> onEntryRequested = new();
 
+        private void Start()
+        {
+            // ロゴ → ボタン → チェック → 補足 の順にすべり込む
+            string[] order = { "Logo", "StartButton", "Tutorial", "Note", "Keys", "Team" };
+            for (int i = 0; i < order.Length; i++)
+            {
+                if (titlePanel != null && titlePanel.transform.Find(order[i]) is RectTransform rect)
+                    UiFx.SlideIn(this, rect, new Vector2(-70f, 0f), 0.5f, 0.2f + i * 0.09f);
+            }
+            if (titlePanel != null && titlePanel.transform.Find("StartButton") is RectTransform start) StartCoroutine(Breathe(start));
+        }
+
+        // 「はじめる」をゆっくり脈打たせて、押すところだと分かるようにする
+        private System.Collections.IEnumerator Breathe(RectTransform target)
+        {
+            yield return new WaitForSecondsRealtime(1.2f);
+            while (true)
+            {
+                UiFx.Punch(this, target, 0.04f, 0.9f);
+                yield return new WaitForSecondsRealtime(1.6f);
+            }
+        }
+
         // 「はじめる」ボタンから呼ぶ
         public void OnStartPressed()
         {
