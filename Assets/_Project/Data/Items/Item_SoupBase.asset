@@ -17,5 +17,5 @@ MonoBehaviour:
   description: "\u767D\u304F\u306B\u3054\u308B\u307E\u3067\u716E\u8FBC\u3093\u3060\u30B9\u30FC\u30D7"
   category: 1
   icon: {fileID: 0}
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 3120390460599533159, guid: 80b6ea127b4cdfc48b5350f67824d0fc, type: 3}
   suspiciousToCarry: 1
