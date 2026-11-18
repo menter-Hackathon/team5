@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9898c7fb22b827a45a1c2e3b3a2b8097, type: 3}
+  m_Name: Recipe_Paitan
+  m_EditorClassIdentifier: 
+  recipeId: paitan
+  displayName: "\u9D8F\u767D\u6E6F\u30E9\u30FC\u30E1\u30F3"
+  inputs:
+  - item: {fileID: 11400000, guid: bac6f9d543b056b46a81ad248ff72382, type: 2}
+    count: 1
+  - item: {fileID: 11400000, guid: 3c82a14eca0a7d34da0bf7d8c5e730aa, type: 2}
+    count: 1
+  output: {fileID: 11400000, guid: 4dbc66479313dc64db6ab27a3242cde7, type: 2}
+  outputCount: 1
+  craftSeconds: 5
+  roleProgressReward: 40
+  individualityReward: 20
+  consumeOnCraft: 0
