@@ -11,7 +11,7 @@ namespace Team5.Items
         [SerializeField] private CraftView view;
 
         public string Prompt => "作る";
-        public bool IsSuspicious => true; // 見られているときに使うと「らしくない行動」
+        public bool IsSuspicious => false; // 開くだけならよい。作っている間は CraftingSystem が 0.5 秒ごとに報告する（npc.md）
 
         public bool CanInteract(PlayerInteractor by)
         {

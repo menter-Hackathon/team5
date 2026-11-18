@@ -77,7 +77,9 @@ namespace Team5.Player
             if (Current == null || (Current is UnityEngine.Object obj && obj == null)) return;
 
             var context = GameSceneContext.Instance;
-            if (context != null && context.Surveillance != null) context.Surveillance.ReportAction(Current.IsSuspicious);
+            // npc.md：見つかったら、その行動はできない（拾えない）
+            bool caught = context != null && context.Surveillance != null && context.Surveillance.ReportAction(Current.IsSuspicious);
+            if (caught) return;
             Current.Interact(this);
         }
 
