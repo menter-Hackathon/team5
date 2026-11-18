@@ -292,4 +292,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   transitionSeconds: 0.5
-  fallbackRole: {fileID: 11400000, guid: 5d2153efe25ed2f4a9368a3eeeaf851c, type: 2}
+  fallbackRole: {fileID: 11400000, guid: a528406cb994c9b4698fd96bd8e8daee, type: 2}

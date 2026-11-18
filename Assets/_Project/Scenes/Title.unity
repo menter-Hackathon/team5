@@ -542,7 +542,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2a9d74845be34621b9fcb229fe918de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultRole: {fileID: 11400000, guid: 5d2153efe25ed2f4a9368a3eeeaf851c, type: 2}
+  defaultRole: {fileID: 11400000, guid: a528406cb994c9b4698fd96bd8e8daee, type: 2}
+  titlePanel: {fileID: 0}
+  settingsPanel: {fileID: 0}
+  onEntryRequested:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!224 &996434245
 RectTransform:
   m_ObjectHideFlags: 0

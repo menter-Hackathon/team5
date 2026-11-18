@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df1091e5c2d93f1478974e16d59bb6c5, type: 3}
+  m_Name: Item_SoupBase
+  m_EditorClassIdentifier: 
+  itemId: soup_base
+  displayName: "\u9D8F\u30AC\u30E9\u30B9\u30FC\u30D7"
+  description: "\u767D\u304F\u306B\u3054\u308B\u307E\u3067\u716E\u8FBC\u3093\u3060\u30B9\u30FC\u30D7"
+  category: 1
+  icon: {fileID: 0}
+  worldPrefab: {fileID: 0}
+  suspiciousToCarry: 1
