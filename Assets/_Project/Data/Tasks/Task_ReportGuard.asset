@@ -24,3 +24,5 @@ MonoBehaviour:
   peaceReward: 10
   individualityCost: 10
   failPeacePenalty: 15
+  rewardItem: {fileID: 11400000, guid: d4cd9e156b343bc4699435112fdc624e, type: 2}
+  rewardCount: 1

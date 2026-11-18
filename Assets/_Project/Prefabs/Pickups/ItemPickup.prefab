@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2572860422624255776}
   - component: {fileID: 7118166678185214905}
   - component: {fileID: 6333724358480571004}
+  - component: {fileID: 5544185366669699309}
   m_Layer: 8
   m_Name: ItemPickup
   m_TagString: Untagged
@@ -124,3 +125,20 @@ MonoBehaviour:
   item: {fileID: 0}
   count: 1
   suspicious: 1
+--- !u!114 &5544185366669699309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158974073920003879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 888b5b854e5556547a6822a7cc2d5096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  height: 0.12
+  speed: 2
+  turnDegreesPerSecond: 45
+  glowMaterial: {fileID: 2100000, guid: a9c7422e783009a48a826d3cb4be5609, type: 2}
+  glowColor: {r: 1, g: 0.784, b: 0.239, a: 0.45}
