@@ -1,6 +1,7 @@
 using Team5.Core;
 using Team5.Data;
 using Team5.Player;
+using Team5.UI;
 using UnityEngine;
 
 namespace Team5.Items
@@ -22,6 +23,7 @@ namespace Team5.Items
             var context = GameSceneContext.Instance;
             if (context != null && context.Inventory != null) context.Inventory.Add(item, count);
             else Debug.LogWarning($"GameSceneContext か Inventory がないので {item.displayName} を持ち物に入れられません。", this);
+            if (WorldFx.Instance != null) WorldFx.Instance.Pickup(transform.position, item);
             Destroy(gameObject);
         }
     }

@@ -87,6 +87,33 @@ namespace Team5.UI
             extra.text = clear
                 ? $"かかった時間  {seconds / 60}:{seconds % 60:00}"
                 : $"{wanted}への進み具合  {Mathf.RoundToInt(summary.roleProgress)} / 100";
+            PlayEntrance(clear);
+        }
+
+        // 絵 → ラベル → 見出し → 一言 → 数値 → ヒント → ボタン の順に出す
+        private void PlayEntrance(bool clear)
+        {
+            string[] order = { "Label", "Heading", "Line", "Individuality", "Peace", "Tasks", "Caught", "Extra", "Hint", "RetryButton", "TitleButton" };
+            for (int i = 0; i < order.Length; i++)
+            {
+                if (transform.Find(order[i]) is RectTransform rect) UiFx.SlideIn(this, rect, new Vector2(60f, 0f), 0.4f, 0.15f + i * 0.07f);
+            }
+            if (transform.Find("Picture") is RectTransform art)
+            {
+                UiFx.SlideIn(this, art, new Vector2(0f, -40f), 0.6f);
+                if (clear) StartCoroutine(Celebrate(art));
+            }
+        }
+
+        // クリアのときだけ、絵がゆっくり弾み続ける
+        private System.Collections.IEnumerator Celebrate(RectTransform art)
+        {
+            yield return new WaitForSecondsRealtime(0.8f);
+            while (true)
+            {
+                UiFx.Punch(this, art, 0.04f, 0.6f);
+                yield return new WaitForSecondsRealtime(1.4f);
+            }
         }
 
         private void Set(Color back, Sprite art, Color textColor, Color chipColor, Color chipTextColor, string head, string sub, string tip)
