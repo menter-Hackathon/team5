@@ -144,6 +144,7 @@ namespace Team5.NPC
             }
 
             Color color = CanSeePlayer ? seeingColor : idleColor;
+            if (CanSeePlayer) color.a *= 0.75f + 0.5f * Mathf.Abs(Mathf.Sin(Time.time * 6f)); // 見られている間は脈打つ
             for (int i = 0; i < coneColors.Length; i++) coneColors[i] = color;
 
             coneMesh.vertices = coneVertices;

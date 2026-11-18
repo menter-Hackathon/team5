@@ -69,7 +69,9 @@ namespace Team5.UI
         private void HandleTaskCompleted(TaskInstance task)
         {
             Burst(PlayerHead - Vector3.up * 0.8f, Accent, 24, 2.6f);
-            FloatText(PlayerHead, $"平和度 +{task.Definition.peaceReward:0}　個性 −{task.Definition.individualityCost:0}", Accent);
+            var definition = task.Definition;
+            string reward = definition.rewardItem != null ? $"\n+ {definition.rewardItem.displayName}（ごほうび）" : "";
+            FloatText(PlayerHead, $"平和度 +{definition.peaceReward:0}　個性 −{definition.individualityCost:0}{reward}", Accent, 1.6f);
         }
 
         private void HandleTaskFailed(TaskInstance task)

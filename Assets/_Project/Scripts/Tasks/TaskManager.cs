@@ -106,6 +106,8 @@ namespace Team5.Tasks
             float score = EvaluateScore(Current);
             AddParameter(ParameterType.Peace, definition.peaceReward * score, $"お題完了：{definition.title}");
             AddParameter(ParameterType.Individuality, -definition.individualityCost, $"お題完了：{definition.title}");
+            var inventory = GameSceneContext.Instance != null ? GameSceneContext.Instance.Inventory : null;
+            if (definition.rewardItem != null && inventory != null) inventory.Add(definition.rewardItem, definition.rewardCount);
             CompletedCount++;
             StartWaiting();
             OnTaskCompleted?.Invoke(Current);
