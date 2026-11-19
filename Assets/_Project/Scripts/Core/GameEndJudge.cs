@@ -90,8 +90,12 @@ namespace Team5.Core
         {
             yield return new WaitForSecondsRealtime(endEffectSeconds);
             var manager = GameManager.Instance;
-            if (manager != null) manager.EndGame(result, summary);
-            else Debug.Log($"[GameEndJudge] {result}（GameManager がないので結果画面には行きません。Title から再生してください）", this);
+            if (manager == null)
+            {
+                // Game シーンを直接再生したときも結果画面を見られるように、その場で GameManager を作る
+                manager = new GameObject("GameManager").AddComponent<GameManager>();
+            }
+            manager.EndGame(result, summary);
         }
 
         // 個性が debuffThreshold 未満の間だけ足が遅くなる
