@@ -13,7 +13,11 @@ namespace Team5.Player
         public bool InteractHeld => !IsInputBlocked() && controls.Player.Interact.IsPressed(); // 長押しの判定用（CD-09b）
         public event Action OnInteract;
         public event Action OnInventory;
+        public event Action OnOutfit; // C（ゲームパッド West）：持ち物の着替えタブ
         public event Action OnPause;
+
+        // 説明のカードを出している間など、ゲームの操作を一時的に止める（TutorialView が使う）
+        public static bool GuideBlocking { get; set; }
 
         private PlayerControls controls;
 
@@ -22,6 +26,7 @@ namespace Team5.Player
             controls = new PlayerControls();
             controls.Player.Interact.performed += HandleInteract;
             controls.Player.Inventory.performed += HandleInventory;
+            controls.Player.Outfit.performed += HandleOutfit;
             controls.Player.Pause.performed += HandlePause;
         }
 
@@ -46,14 +51,20 @@ namespace Team5.Player
             if (!IsInputBlocked()) OnInventory?.Invoke();
         }
 
+        private void HandleOutfit(InputAction.CallbackContext context)
+        {
+            if (!IsInputBlocked()) OnOutfit?.Invoke();
+        }
+
         // 一時停止中でも解除できるように、Pause は Result のときだけ止める
         private void HandlePause(InputAction.CallbackContext context)
         {
-            if (CurrentState() != GameState.Result) OnPause?.Invoke();
+            if (CurrentState() != GameState.Result && !GuideBlocking) OnPause?.Invoke();
         }
 
         private static bool IsInputBlocked()
         {
+            if (GuideBlocking) return true;
             var state = CurrentState();
             return state == GameState.Paused || state == GameState.Result;
         }

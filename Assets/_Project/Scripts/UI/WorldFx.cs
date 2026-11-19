@@ -24,7 +24,12 @@ namespace Team5.UI
         private Color roleColor = new(0.949f, 0.639f, 0.227f);
         private Camera mainCamera;
 
+        public Material ParticleMaterial => particleMaterial;
+
         private void Awake() => Instance = this;
+
+        // ほかの演出（PlayerVfx）から浮かぶ文字を出す
+        public void ShowText(Vector3 position, string text, Color color, float seconds = 1.6f, int size = 56) => FloatText(position, text, color, seconds, size);
 
         private void Start()
         {
@@ -82,7 +87,30 @@ namespace Team5.UI
         private void HandleCaught(VisionSensor watcher)
         {
             FloatText(watcher.transform.position + Vector3.up * 2.4f, "！", Warning, 1f, 90);
+            StartCoroutine(Startle(watcher)); // 見つけた NPC が驚いて跳ねる（AN-02）
             Burst(PlayerHead - Vector3.up * 0.8f, Warning, 18, 2.4f);
+        }
+
+        // NPC のモデルだけを跳ねさせる（本体は NavMeshAgent が動かすので触らない）
+        private IEnumerator Startle(VisionSensor watcher)
+        {
+            var npc = watcher != null ? watcher.GetComponentInParent<NpcModelAnimator>() : null;
+            var animator = npc != null ? npc.GetComponentInChildren<Animator>() : null;
+            if (animator == null) yield break;
+            var model = animator.transform;
+            Vector3 home = model.localPosition;
+            Vector3 homeScale = model.localScale;
+            const float seconds = 0.45f;
+            for (float t = 0f; t < seconds; t += Time.deltaTime)
+            {
+                if (model == null) yield break;
+                float k = t / seconds;
+                float arc = Mathf.Sin(k * Mathf.PI);
+                model.localPosition = home + Vector3.up * (0.3f * arc);
+                model.localScale = new Vector3(homeScale.x * (1f - 0.06f * arc), homeScale.y * (1f + 0.12f * arc), homeScale.z * (1f - 0.06f * arc));
+                yield return null;
+            }
+            if (model != null) { model.localPosition = home; model.localScale = homeScale; }
         }
 
         // ---------- 粒 ----------

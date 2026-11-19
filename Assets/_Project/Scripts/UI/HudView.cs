@@ -128,6 +128,9 @@ namespace Team5.UI
             taskCard = (RectTransform)transform.Find("Task");
             watchedPanel = (RectTransform)transform.Find("Watched");
             timerPanel = (RectTransform)transform.Find("Timer");
+            // 左上のゲージと右上の「見られている」は少し小さくして、村を広く見せる
+            Shrink(transform.Find("Parameters") as RectTransform, new Vector2(0f, 1f), 0.8f);
+            Shrink(watchedPanel, new Vector2(1f, 1f), 0.8f);
             caughtToastY = caughtToast.anchoredPosition.y;
             caughtGroup.alpha = 0f;
             vignette.alpha = 0f;
@@ -225,6 +228,17 @@ namespace Team5.UI
             float alpha = blink && Mathf.Repeat(Time.time, 1f) < 0.5f ? 0.35f : 1f;
             fillImage.canvasRenderer.SetAlpha(alpha);
             gauge.icon.canvasRenderer.SetAlpha(alpha);
+        }
+
+        // 角（pivot）を固定したまま縮める
+        private static void Shrink(RectTransform rect, Vector2 pivot, float scale)
+        {
+            if (rect == null) return;
+            Vector2 size = rect.rect.size;
+            Vector2 delta = pivot - rect.pivot;
+            rect.pivot = pivot;
+            rect.anchoredPosition += new Vector2(delta.x * size.x, delta.y * size.y);
+            rect.localScale = new Vector3(scale, scale, 1f);
         }
 
         private static void SetWidth(RectTransform rect, float value)

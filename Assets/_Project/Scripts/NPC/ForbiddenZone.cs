@@ -10,7 +10,7 @@ namespace Team5.NPC
         [SerializeField] private float reportInterval = 0.5f;
 
         // プレイヤーがどれかの禁止ゾーンに入っているか（画面の「道から外れている」表示に使う）
-        public static bool IsPlayerInside => insideCount > 0;
+        public static bool IsPlayerInside => insideCount > 0 || OffRoadWatcher.IsOff;
         private static int insideCount;
 
         private bool playerInside;

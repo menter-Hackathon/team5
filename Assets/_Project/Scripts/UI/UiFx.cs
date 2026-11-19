@@ -31,15 +31,20 @@ namespace Team5.UI
             Run(host, target, "punch", PunchRoutine(target, amount, seconds));
         }
 
+        // 元の大きさ（縮めて置いた UI もあるので 1 とは限らない）
+        private static readonly Dictionary<Transform, Vector3> baseScales = new Dictionary<Transform, Vector3>();
+
         private static IEnumerator PunchRoutine(Transform target, float amount, float seconds)
         {
+            if (!baseScales.TryGetValue(target, out var baseScale) || target == null) { baseScale = target.localScale; baseScales[target] = baseScale; }
             for (float t = 0f; t < seconds; t += Time.unscaledDeltaTime)
             {
+                if (target == null) yield break;
                 float k = t / seconds;
-                target.localScale = Vector3.one * (1f + amount * Mathf.Sin(k * Mathf.PI) * (1f - k * 0.5f));
+                target.localScale = baseScale * (1f + amount * Mathf.Sin(k * Mathf.PI) * (1f - k * 0.5f));
                 yield return null;
             }
-            target.localScale = Vector3.one;
+            if (target != null) target.localScale = baseScale;
         }
 
         // 左右にゆれる（失敗・見つかった）

@@ -1,3 +1,4 @@
+using Team5.Audio;
 using Team5.Core;
 using Team5.Data;
 using Team5.Player;
@@ -13,6 +14,9 @@ namespace Team5.Items
         [SerializeField] private int count = 1;
         [SerializeField] private bool suspicious = true; // 見られているときに拾うと「らしくない行動」
 
+        public ItemDefinition Item => item;
+        public int Count => count;
+
         public string Prompt => $"拾う：{item.displayName}";
         public bool IsSuspicious => suspicious;
 
@@ -24,6 +28,8 @@ namespace Team5.Items
             if (context != null && context.Inventory != null) context.Inventory.Add(item, count);
             else Debug.LogWarning($"GameSceneContext か Inventory がないので {item.displayName} を持ち物に入れられません。", this);
             if (WorldFx.Instance != null) WorldFx.Instance.Pickup(transform.position, item);
+            if (by != null && by.TryGetComponent(out PlayerAnimator animator)) animator.PlayPickup();
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Pickup);
             Destroy(gameObject);
         }
     }

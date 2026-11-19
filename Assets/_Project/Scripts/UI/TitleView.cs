@@ -1,3 +1,4 @@
+using System.Linq;
 using Team5.Core;
 using Team5.Data;
 using UnityEngine;
@@ -12,6 +13,9 @@ namespace Team5.UI
         [SerializeField] private GameObject titlePanel;
         [SerializeField] private GameObject settingsPanel;
         [SerializeField] private UnityEvent<bool> onEntryRequested = new();
+        [SerializeField] private RoleDefinition[] roles; // 選べるロール（CD-20）。2 つ以上あれば入村の前に選ぶ
+
+        private GameObject rolePanel;
 
         private void Start()
         {
@@ -23,6 +27,7 @@ namespace Team5.UI
                     UiFx.SlideIn(this, rect, new Vector2(-70f, 0f), 0.5f, 0.2f + i * 0.09f);
             }
             if (titlePanel != null && titlePanel.transform.Find("StartButton") is RectTransform start) StartCoroutine(Breathe(start));
+            SelectStart();
         }
 
         // 「入村してみる」をゆっくり脈打たせて、押すところだと分かるようにする
@@ -44,7 +49,188 @@ namespace Team5.UI
                 Debug.LogWarning("GameManager がありません。Title シーンから再生してください。", this);
                 return;
             }
-            GameManager.Instance.StartGame(defaultRole);
+            // 「体験入村してみる」にチェック、または初めて遊ぶときはチュートリアルから（CD-16）
+            var valid = roles != null ? System.Array.FindAll(roles, r => r != null) : new RoleDefinition[0];
+            if (valid.Length > 1) { ShowRoles(valid); return; }
+            StartWith(defaultRole);
+        }
+
+        private void StartWith(RoleDefinition role)
+        {
+            var toggle = titlePanel != null ? titlePanel.GetComponentInChildren<UnityEngine.UI.Toggle>(true) : null;
+            TutorialView.Requested = (toggle != null && toggle.isOn) || TutorialView.ShouldShowOnFirstPlay;
+            GameManager.Instance.StartGame(role);
+        }
+
+        // ---------- ロールを選ぶ（CD-20 の簡易版） ----------
+
+        private static readonly System.Collections.Generic.Dictionary<string, string> RoleNotes = new()
+        {
+            { "ramen_chef", "剣より寸胴鍋。最高の鶏白湯ラーメンを作りたい" },
+            { "band_man", "家を継ぐより、自分の曲を作って演奏したい" },
+            { "librarian", "ハンマーより本。村に小さな図書館を開きたい" },
+            { "progamer", "畑よりゲームの世界。夢は世界チャンピオン" },
+        };
+
+        private void ShowRoles(RoleDefinition[] list)
+        {
+            if (rolePanel == null) rolePanel = BuildRolePanel(list);
+            rolePanel.SetActive(true);
+            titlePanel.SetActive(false);
+            var first = rolePanel.GetComponentInChildren<UnityEngine.UI.Button>();
+            if (first != null && UnityEngine.EventSystems.EventSystem.current != null)
+                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(first.gameObject);
+        }
+
+        private void HideRoles()
+        {
+            if (rolePanel != null) rolePanel.SetActive(false);
+            titlePanel.SetActive(true);
+            SelectStart();
+        }
+
+        // 矢印キー・ゲームパッドで選べるように、最初から「入村してみる」を選んでおく
+        private void SelectStart()
+        {
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            if (es == null || titlePanel == null) return;
+            var start = titlePanel.transform.Find("StartButton");
+            var button = start != null ? start.GetComponent<UnityEngine.UI.Selectable>() : titlePanel.GetComponentInChildren<UnityEngine.UI.Selectable>();
+            if (button != null) es.SetSelectedGameObject(button.gameObject);
+        }
+
+        private void Update()
+        {
+            // マウスでどこかを押して選択が外れても、矢印キーでまた選べるように
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            if (es == null || es.currentSelectedGameObject != null) return;
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            bool arrow = kb != null && (kb.upArrowKey.wasPressedThisFrame || kb.downArrowKey.wasPressedThisFrame || kb.leftArrowKey.wasPressedThisFrame || kb.rightArrowKey.wasPressedThisFrame || kb.wKey.wasPressedThisFrame || kb.sKey.wasPressedThisFrame);
+            if (!arrow) return;
+            if (rolePanel != null && rolePanel.activeSelf)
+            {
+                var first = rolePanel.GetComponentInChildren<UnityEngine.UI.Button>();
+                if (first != null) es.SetSelectedGameObject(first.gameObject);
+            }
+            else if (titlePanel != null && titlePanel.activeSelf) SelectStart();
+        }
+
+        private GameObject BuildRolePanel(RoleDefinition[] list)
+        {
+            var canvas = titlePanel.GetComponentInParent<Canvas>();
+            var anyText = titlePanel.GetComponentInChildren<UnityEngine.UI.Text>(true);
+            Font font = anyText != null ? anyText.font : null;
+
+            var root = NewRect("RolePanel", canvas.transform);
+            root.anchorMin = Vector2.zero; root.anchorMax = Vector2.one;
+            root.offsetMin = root.offsetMax = Vector2.zero;
+            var dim = root.gameObject.AddComponent<UnityEngine.UI.Image>();
+            dim.color = new Color(0.04f, 0.03f, 0.06f, 0.72f);
+
+            var heading = NewText(root, font, "どの「なりたい自分」を目指す？", 56, new Color(1f, 0.82f, 0.24f));
+            heading.rectTransform.anchorMin = heading.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            heading.rectTransform.anchoredPosition = new Vector2(0f, 300f);
+            heading.rectTransform.sizeDelta = new Vector2(1600f, 90f);
+
+            float width = 400f, gap = 30f;
+            float total = list.Length * width + (list.Length - 1) * gap;
+            for (int i = 0; i < list.Length; i++)
+            {
+                var role = list[i];
+                var card = NewRect("Role_" + role.roleId, root);
+                card.anchorMin = card.anchorMax = new Vector2(0.5f, 0.5f);
+                card.sizeDelta = new Vector2(width, 420f);
+                card.anchoredPosition = new Vector2(-total * 0.5f + width * 0.5f + i * (width + gap), -20f);
+                var bg = card.gameObject.AddComponent<UnityEngine.UI.Image>();
+                bg.color = new Color(0.12f, 0.1f, 0.14f, 0.96f);
+                var button = card.gameObject.AddComponent<UnityEngine.UI.Button>();
+                var colors = button.colors;
+                colors.normalColor = Color.white;
+                colors.highlightedColor = new Color(1f, 0.95f, 0.8f);
+                colors.selectedColor = new Color(1f, 0.92f, 0.7f);
+                colors.pressedColor = new Color(0.85f, 0.8f, 0.7f);
+                button.colors = colors;
+                var picked = role;
+                button.onClick.AddListener(() => StartWith(picked));
+
+                var bar = NewRect("Bar", card);
+                bar.anchorMin = new Vector2(0f, 1f); bar.anchorMax = new Vector2(1f, 1f);
+                bar.pivot = new Vector2(0.5f, 1f);
+                bar.sizeDelta = new Vector2(0f, 16f);
+                var barImage = bar.gameObject.AddComponent<UnityEngine.UI.Image>();
+                barImage.color = role.roleColor;
+                barImage.raycastTarget = false;
+
+                var name = NewText(card, font, role.displayName, 48, role.roleColor);
+                Place(name.rectTransform, 0f, -70f, 80f);
+                var imposed = NewText(card, font, $"押し付けられる「らしさ」\n<size=30>{role.imposedRoleName}</size>", 22, new Color(0.85f, 0.83f, 0.8f));
+                Place(imposed.rectTransform, 0f, -150f, 70f);
+                string note = role.roleId != null && RoleNotes.TryGetValue(role.roleId.Trim(), out var n) ? n : "";
+                var desc = NewText(card, font, note, 28, Color.white);
+                desc.horizontalOverflow = HorizontalWrapMode.Wrap;
+                Place(desc.rectTransform, 0f, -260f, 120f);
+                string goal = role.goalItem != null ? role.goalItem.displayName : role.displayName;
+                var goalText = NewText(card, font, $"目標：{goal}", 26, new Color(1f, 0.82f, 0.24f));
+                Place(goalText.rectTransform, 0f, -360f, 50f);
+            }
+
+            var back = NewRect("Back", root);
+            back.anchorMin = back.anchorMax = new Vector2(0.5f, 0.5f);
+            back.sizeDelta = new Vector2(260f, 70f);
+            back.anchoredPosition = new Vector2(0f, -320f);
+            var backImage = back.gameObject.AddComponent<UnityEngine.UI.Image>();
+            backImage.color = new Color(0.25f, 0.22f, 0.28f, 0.95f);
+            var backButton = back.gameObject.AddComponent<UnityEngine.UI.Button>();
+            backButton.onClick.AddListener(HideRoles);
+            var backText = NewText(back, font, "もどる", 32, Color.white);
+            backText.rectTransform.anchorMin = Vector2.zero; backText.rectTransform.anchorMax = Vector2.one;
+            backText.rectTransform.offsetMin = backText.rectTransform.offsetMax = Vector2.zero;
+
+            // 矢印キー：左右でカード、下で「もどる」、上でカードへ
+            var cards = root.GetComponentsInChildren<UnityEngine.UI.Button>(true).Where(b => b != backButton).ToList();
+            for (int i = 0; i < cards.Count; i++)
+            {
+                var nav = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.Explicit };
+                nav.selectOnLeft = cards[(i + cards.Count - 1) % cards.Count];
+                nav.selectOnRight = cards[(i + 1) % cards.Count];
+                nav.selectOnDown = backButton;
+                nav.selectOnUp = backButton;
+                cards[i].navigation = nav;
+            }
+            backButton.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.Explicit, selectOnUp = cards.FirstOrDefault(), selectOnDown = cards.FirstOrDefault() };
+
+            root.gameObject.SetActive(false);
+            return root.gameObject;
+        }
+
+        private static void Place(RectTransform rect, float x, float y, float height)
+        {
+            rect.anchorMin = new Vector2(0f, 1f); rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(-40f, height);
+            rect.anchoredPosition = new Vector2(x, y);
+        }
+
+        private static RectTransform NewRect(string name, Transform parent)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            return (RectTransform)go.transform;
+        }
+
+        private static UnityEngine.UI.Text NewText(Transform parent, Font font, string value, int size, Color color)
+        {
+            var rect = NewRect("Text", parent);
+            var text = rect.gameObject.AddComponent<UnityEngine.UI.Text>();
+            text.font = font != null ? font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = size;
+            text.color = color;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            text.text = value;
+            return text;
         }
 
         public void EnterVillage()

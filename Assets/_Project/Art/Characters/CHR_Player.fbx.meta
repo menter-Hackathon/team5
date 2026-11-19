@@ -33,7 +33,7 @@ ModelImporter:
     clipAnimations:
     - serializedVersion: 16
       name: Running
-      takeName: Running
+      takeName: SmartRigArmature|Running
       internalID: -9121621101649706817
       firstFrame: 0
       lastFrame: 38

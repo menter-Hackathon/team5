@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfacde23fd0b68248a5a9f7ffe092903, type: 3}
+  m_Name: Role_BandMan
+  m_EditorClassIdentifier: 
+  roleId: band_man
+  displayName: "\u30D0\u30F3\u30C9\u30DE\u30F3"
+  imposedRoleName: "\u9577\u7537"
+  imposedIntro: "\u300C\u304A\u524D\u306F\u9577\u7537\u3060\u3002\u5BB6\u3092\u7D99\u3050\u8005\u3089\u3057\u304F\u3001\u3057\u3063\u304B\u308A\u3057\u306A\u3055\u3044\u300D"
+  roleColor: {r: 0.8784314, g: 0.33333334, b: 0.6039216, a: 1}
+  imposedTasks:
+  - {fileID: 11400000, guid: e9d776779d0dd45b98e01e4d7b766134, type: 2}
+  - {fileID: 11400000, guid: 8d8a24de8983a4d52866bcb02ceb49df, type: 2}
+  - {fileID: 11400000, guid: 3bce8da3b2e5c43278efdeac8fa55475, type: 2}
+  recipes:
+  - {fileID: 11400000, guid: a609457a022cb4a4791a327d69df3233, type: 2}
+  - {fileID: 11400000, guid: f4d5014bd9b8f41a681ea4f29e8097db, type: 2}
+  goalItem: {fileID: 11400000, guid: 462913fcc178a411cb23c625cb1d6d92, type: 2}
+  outfits: []

@@ -16,6 +16,6 @@ MonoBehaviour:
   displayName: "\u982D\u30BF\u30AA\u30EB"
   item: {fileID: 11400000, guid: c96a26860f98f2f4c857a8017dfcc776, type: 2}
   stage: 2
-  prefab: {fileID: 0}
+  prefab: {fileID: 2298738561344736057, guid: b9a69e7e70aba4dd19858e0a18666730, type: 3}
   attachPoint: Head
   individualityReward: 10

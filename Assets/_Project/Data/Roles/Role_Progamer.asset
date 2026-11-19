@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfacde23fd0b68248a5a9f7ffe092903, type: 3}
+  m_Name: Role_Progamer
+  m_EditorClassIdentifier: 
+  roleId: progamer
+  displayName: "\u30D7\u30ED\u30B2\u30FC\u30DE\u30FC"
+  imposedRoleName: "\u8FB2\u5BB6\u306E\u5B50"
+  imposedIntro: "\u300C\u304A\u524D\u306F\u8FB2\u5BB6\u306E\u5B50\u3060\u3002\u8A00\u308F\u308C\u305F\u7551\u3092\u3001\u8A00\u308F\u308C\u305F\u3068\u304A\u308A\u306B\u8015\u3057\u306A\u3055\u3044\u300D"
+  roleColor: {r: 0.3647059, g: 0.73333335, b: 0.3882353, a: 1}
+  imposedTasks:
+  - {fileID: 11400000, guid: b7b8764e211e74fc391c5e38f54adb32, type: 2}
+  - {fileID: 11400000, guid: 4651a00f955f64d5694a99ad6787d0c2, type: 2}
+  - {fileID: 11400000, guid: f1db493229d724b0c9245ab51a49aa05, type: 2}
+  recipes:
+  - {fileID: 11400000, guid: 755d93209f5954d4496bace1c43de4a1, type: 2}
+  - {fileID: 11400000, guid: bf9936f03286f47c3bf868f0a9994ac0, type: 2}
+  - {fileID: 11400000, guid: 74a95a259501c45fd89ceb9d63413b5d, type: 2}
+  goalItem: {fileID: 11400000, guid: ecd82157d1f9a441e88b2e6acd37cc20, type: 2}
+  outfits: []
