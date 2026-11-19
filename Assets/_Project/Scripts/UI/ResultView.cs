@@ -45,11 +45,11 @@ namespace Team5.UI
         private void Start()
         {
             var manager = GameManager.Instance;
-            var result = manager != null ? manager.LastResult : GameResult.Clear;
+            var result = manager != null ? manager.LastResult : GameResult.None;
             var summary = manager != null ? manager.LastSummary : default;
             var role = manager != null && manager.CurrentRole != null ? manager.CurrentRole : fallbackRole;
-            string wanted = role != null ? role.displayName : "なりたい自分";
-            string imposed = role != null ? role.imposedRoleName : "勇者";
+            string wanted = role != null && !string.IsNullOrWhiteSpace(role.displayName) ? role.displayName : "なりたい自分";
+            string imposed = role != null && !string.IsNullOrWhiteSpace(role.imposedRoleName) ? role.imposedRoleName : "勇者";
 
             bool clear = result == GameResult.Clear;
             labelText.text = clear ? "クリア" : "ゲームオーバー";
@@ -57,8 +57,16 @@ namespace Team5.UI
             switch (result)
             {
                 case GameResult.Clear:
-                    Set(role != null ? role.roleColor : Accent, clearPicture, Ink, Accent, Ink,
-                        $"{wanted}になれた！", "これが わたしらしさ。", "言われたこともこなしつつ、自分の『好き』を守れた！");
+                    bool ramenChef = role != null && role.roleId == "ramen_chef";
+                    Set(new Color(0.98f, 0.93f, 0.81f), clearPicture, Ink, Accent, Ink,
+                        "これが、わたしらしさ。",
+                        $"{imposed}になるはずだった。\n" + (ramenChef
+                            ? "けれど、いま手にしているのは、自分で作った一杯だ。"
+                            : "けれど、いまここにいるのは、自分で選んだわたしだ。"),
+                        $"なりたかった自分　{wanted}");
+                    SetNotice("らしさ達成", ramenChef
+                        ? "……まあ、一杯くらいは、いただこうか。"
+                        : "……それが、お前の選んだ道か。");
                     break;
                 case GameResult.GameOverPeace:
                     Set(Fog, peacePicture, Ink, Warning, Color.white,
@@ -98,7 +106,7 @@ namespace Team5.UI
             caughtValue.text = $"{summary.timesCaught} 回";
 
             int seconds = Mathf.RoundToInt(summary.elapsedSeconds);
-            extra.text = clear
+            extra.text = result == GameResult.None ? "" : clear
                 ? $"かかった時間  {seconds / 60}:{seconds % 60:00}"
                 : $"{wanted}への進み具合  {Mathf.RoundToInt(summary.roleProgress)} / 100";
             PlayEntrance(clear);
@@ -111,10 +119,16 @@ namespace Team5.UI
             heading.resizeTextMinSize = 28;
             heading.resizeTextMaxSize = 46;
             line.fontSize = 25;
+            line.resizeTextForBestFit = true;
+            line.resizeTextMinSize = 20;
+            line.resizeTextMaxSize = 25;
             line.rectTransform.anchoredPosition = new Vector2(930, -325);
             line.rectTransform.sizeDelta = new Vector2(900, 90);
             hint.text = hint.text + "\n村長「" + chiefLine + "」";
             hint.fontSize = 22;
+            hint.resizeTextForBestFit = true;
+            hint.resizeTextMinSize = 18;
+            hint.resizeTextMaxSize = 22;
             hint.color = Ink;
             hint.rectTransform.sizeDelta = new Vector2(880, 80);
         }
