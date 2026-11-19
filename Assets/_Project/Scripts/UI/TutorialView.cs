@@ -68,6 +68,7 @@ namespace Team5.UI
             if (GetComponent<NpcNameplateView>() == null) gameObject.AddComponent<NpcNameplateView>().Init(font, panelSprite);
 
             guide = Requested || ShouldShowOnFirstPlay;
+            if (context.Player != null && context.Player.TryGetComponent(out OutfitController outfits)) outfits.OnEquipped += OnEquipped;
             Requested = false;
             BuildUi();
             StartCoroutine(Run());
@@ -75,6 +76,7 @@ namespace Team5.UI
 
         private void OnDestroy()
         {
+            if (context != null && context.Player != null && context.Player.TryGetComponent(out OutfitController outfits)) outfits.OnEquipped -= OnEquipped;
             PlayerInputReader.GuideBlocking = false;
             Unsubscribe();
         }
@@ -252,6 +254,15 @@ namespace Team5.UI
                     }
             }
             checkReady:
+            if (role.outfits != null)
+                foreach (var o in role.outfits)
+                    if (o != null && o.item != null && context.Inventory.Count(o.item) > 0)
+                    {
+                        Tip("outfit", "服を手に入れた！",
+                            $"「{o.displayName}」を着ると、{wanted}らしい見た目になる（<color=#8EE59A>個性 ＋</color>）。\n\n" +
+                            "だれも見ていないときに <color=#FFD23F>C</color>（または Tab →「着替え」）で着替えよう。\n見られている間に着替えると、ばれてしまう。");
+                        break;
+                    }
             foreach (var recipe in role.recipes)
                 if (recipe != null && context.Inventory.Has(recipe.inputs))
                 {
@@ -260,6 +271,21 @@ namespace Team5.UI
                         "作っている間に見られると、中断して<color=#FF6A5A>平和度 −25</color>。\nまわりに村人がいないのを確かめてから！");
                     break;
                 }
+        }
+
+        // 着替えたら、画面の下に大きく出す（ガイドの有無に関係なく）
+        private void OnEquipped(OutfitDefinition outfit)
+        {
+            if (outfit == null || banner == null) return;
+            string wantedName = role != null ? role.displayName : "なりたい自分";
+            var controller = context.Player != null ? context.Player.GetComponent<OutfitController>() : null;
+            int max = role != null && role.outfits != null ? role.outfits.Count : 0;
+            int stage = controller != null ? controller.CurrentStage : 0;
+            banner.gameObject.SetActive(true);
+            bannerText.text = $"<size=38><color=#FFD23F>{outfit.displayName}</color> を着た！</size>\n{wantedName}らしくなってきた（見た目 {stage} / {max}）";
+            UiFx.Punch(this, banner, 0.12f, 0.35f);
+            StopCoroutine(nameof(HideBannerLater));
+            StartCoroutine(HideBannerLater(3.5f));
         }
 
         private void OnCrafted(RecipeDefinition recipe)
