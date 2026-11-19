@@ -61,16 +61,30 @@ namespace Team5.UI
                         $"{wanted}になれた！", "これが わたしらしさ。", "言われたこともこなしつつ、自分の『好き』を守れた！");
                     break;
                 case GameResult.GameOverPeace:
-                    Set(Dark, peacePicture, Color.white, Warning, Color.white,
-                        "村にばれてしまった…", $"『{imposed}らしくない！』", "らしくない行動は、だれも見ていないときに。お題をこなすと平和度が戻るよ");
+                    Set(Fog, peacePicture, Ink, Warning, Color.white,
+                        "あなたらしさを、確認しました。",
+                        "あなたが何を望んでいるのか、村にもよく分かりました。\nその望みは、この村では認められていません。",
+                        "平和度が0になりました。");
+                    SetNotice("不適合", "好きにしてよいとは言ったが、そこまでとは言っておらんよ。");
+                    break;
+                case GameResult.GameOverTimeUp:
+                    Set(new Color(0.88f, 0.79f, 0.65f), timeUpPicture, Ink, Dark, Color.white,
+                        "明日も、あなたの役割が待っています。",
+                        "なりたかった自分のことは、また明日考えましょう。\n明日も、今日と同じ仕事が待っています。",
+                        "制限時間になりました。");
+                    SetNotice("本日終了", "夢は逃げんよ。明日もまず、村の仕事を頼むぞ。");
                     break;
                 case GameResult.GameOverFaded:
                     Set(Fog, fadedPicture, Ink, Stone, Color.white,
-                        "色が消えてしまった…", $"言われたとおりの{imposed}になった。", "お題ばかりだと色が消えちゃう。こっそりクラフトして個性を取り戻そう");
+                        "立派な村人になりました。",
+                        $"あなたは、期待されたとおりの{imposed}になりました。\nもう、自分が何になりたかったかで悩む必要はありません。",
+                        "個性が0になりました。");
+                    SetNotice("適応完了", "うむ。ようやく、お前らしくなったな。");
                     break;
                 default:
                     Set(Shadow, timeUpPicture, Color.white, Dark, Color.white,
-                        "時間切れ…", $"{wanted}には、まだなれなかった。", "素材を先に集めておくと、クラフトが早く終わるよ");
+                        "結果がまだありません", "タイトルからゲームを開始してください。", "");
+                    labelText.text = "未記録";
                     break;
             }
 
@@ -78,8 +92,8 @@ namespace Team5.UI
             float peaceMax = balance != null ? balance.peaceMax : 100f;
             individualityValue.text = $"{Mathf.RoundToInt(summary.individuality)}";
             peaceValue.text = $"{Mathf.RoundToInt(summary.peace)}";
-            SetWidth(individualityFill, summary.individuality / individualityMax);
-            SetWidth(peaceFill, summary.peace / peaceMax);
+            SetWidth(individualityFill, summary.individuality / Mathf.Max(1f, individualityMax));
+            SetWidth(peaceFill, summary.peace / Mathf.Max(1f, peaceMax));
             tasksValue.text = $"{summary.tasksCompleted} 回";
             caughtValue.text = $"{summary.timesCaught} 回";
 
@@ -88,6 +102,21 @@ namespace Team5.UI
                 ? $"かかった時間  {seconds / 60}:{seconds % 60:00}"
                 : $"{wanted}への進み具合  {Mathf.RoundToInt(summary.roleProgress)} / 100";
             PlayEntrance(clear);
+        }
+
+        private void SetNotice(string stamp, string chiefLine)
+        {
+            labelText.text = stamp;
+            heading.resizeTextForBestFit = true;
+            heading.resizeTextMinSize = 28;
+            heading.resizeTextMaxSize = 46;
+            line.fontSize = 25;
+            line.rectTransform.anchoredPosition = new Vector2(930, -325);
+            line.rectTransform.sizeDelta = new Vector2(900, 90);
+            hint.text = hint.text + "\n村長「" + chiefLine + "」";
+            hint.fontSize = 22;
+            hint.color = Ink;
+            hint.rectTransform.sizeDelta = new Vector2(880, 80);
         }
 
         // 絵 → ラベル → 見出し → 一言 → 数値 → ヒント → ボタン の順に出す
