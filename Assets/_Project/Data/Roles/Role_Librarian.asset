@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfacde23fd0b68248a5a9f7ffe092903, type: 3}
+  m_Name: Role_Librarian
+  m_EditorClassIdentifier: 
+  roleId: librarian
+  displayName: "\u53F8\u66F8"
+  imposedRoleName: "\u935B\u51B6\u5C4B\u306E\u8DE1\u53D6\u308A"
+  imposedIntro: "\u300C\u304A\u524D\u306F\u935B\u51B6\u5C4B\u306E\u8DE1\u53D6\u308A\u3060\u3002\u6BCE\u65E5\u30CF\u30F3\u30DE\u30FC\u3092\u632F\u308A\u306A\u3055\u3044\u300D"
+  roleColor: {r: 0.30980393, g: 0.6392157, b: 0.8784314, a: 1}
+  imposedTasks:
+  - {fileID: 11400000, guid: 1522923ea8c014819b87f3203807b358, type: 2}
+  - {fileID: 11400000, guid: b8b2c4fd94a9d4c449d8fc2632d20b16, type: 2}
+  - {fileID: 11400000, guid: 0756e552362864c7c9f906aab2d84478, type: 2}
+  recipes:
+  - {fileID: 11400000, guid: 908834bfbdee245c2ad372104d3ade45, type: 2}
+  - {fileID: 11400000, guid: fda03561a289e4e33881a2f46a270918, type: 2}
+  - {fileID: 11400000, guid: 2dca63724a54d4d86b9f8c5e7a8aaa16, type: 2}
+  goalItem: {fileID: 11400000, guid: 3ba0486b070ef40e2ae69c2d0af1088a, type: 2}
+  outfits: []

@@ -52,25 +52,25 @@ namespace Team5.UI
             string imposed = role != null ? role.imposedRoleName : "勇者";
 
             bool clear = result == GameResult.Clear;
-            labelText.text = clear ? "クリア" : "ゲームオーバー";
+            labelText.text = clear ? "受理" : result == GameResult.GameOverPeace ? "追放" : result == GameResult.GameOverFaded ? "適合" : "現状維持";
 
             switch (result)
             {
                 case GameResult.Clear:
                     Set(role != null ? role.roleColor : Accent, clearPicture, Ink, Accent, Ink,
-                        $"{wanted}になれた！", "これが わたしらしさ。", "言われたこともこなしつつ、自分の『好き』を守れた！");
+                        $"{wanted}になれた！", $"届け出は受理されました。今日から、あなたは{wanted}です。", "言われたこともこなしつつ、自分の『好き』を守れた！");
                     break;
                 case GameResult.GameOverPeace:
                     Set(Dark, peacePicture, Color.white, Warning, Color.white,
-                        "村にばれてしまった…", $"『{imposed}らしくない！』", "らしくない行動は、だれも見ていないときに。お題をこなすと平和度が戻るよ");
+                        "村の名簿から、外されました。", $"理由：{imposed}らしくない行いが目撃されたため。", "らしくない行動は、だれも見ていないときに。お題をこなすと平和度が戻るよ");
                     break;
                 case GameResult.GameOverFaded:
                     Set(Fog, fadedPicture, Ink, Stone, Color.white,
-                        "色が消えてしまった…", $"言われたとおりの{imposed}になった。", "お題ばかりだと色が消えちゃう。こっそりクラフトして個性を取り戻そう");
+                        $"おめでとう。あなたは立派な{imposed}です。", "もう、何も迷うことはありません。何も、感じません。", "お題ばかりだと色が消えちゃう。こっそりクラフトして個性を取り戻そう");
                     break;
                 default:
                     Set(Shadow, timeUpPicture, Color.white, Dark, Color.white,
-                        "時間切れ…", $"{wanted}には、まだなれなかった。", "素材を先に集めておくと、クラフトが早く終わるよ");
+                        "日が沈みました。", $"明日も、あなたは{imposed}として生きます。これまでどおりに。", "素材を先に集めておくと、クラフトが早く終わるよ");
                     break;
             }
 

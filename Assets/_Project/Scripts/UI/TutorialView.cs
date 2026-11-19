@@ -53,7 +53,9 @@ namespace Team5.UI
         private Text bodyText;
         private Text hintText;
         private Text pageText;
-        private GameObject pauseRoot; // Esc の一時停止中に出す（何も出ないと固まったように見えるので）
+        private GameObject pauseRoot;
+        private RectTransform banner;
+        private Text bannerText; // Esc の一時停止中に出す（何も出ないと固まったように見えるので）
 
         private void Start()
         {
@@ -62,6 +64,8 @@ namespace Team5.UI
 
             // 目標パネルもここで作る（シーンに置かなくてよいように）
             if (GetComponent<ObjectiveView>() == null) gameObject.AddComponent<ObjectiveView>().Init(font, panelSprite);
+            if (GetComponent<GuideArrowView>() == null) gameObject.AddComponent<GuideArrowView>().Init(font);
+            if (GetComponent<NpcNameplateView>() == null) gameObject.AddComponent<NpcNameplateView>().Init(font, panelSprite);
 
             guide = Requested || ShouldShowOnFirstPlay;
             Requested = false;
@@ -90,28 +94,54 @@ namespace Team5.UI
             {
                 cards.Add(new Card("らしさの村", "この村では、生まれた家で\n「なるべき自分」が決められている。\nみんな、言われたとおりの「らしさ」で生きている。"));
                 cards.Add(new Card("村長", $"{intro}"));
-                cards.Add(new Card("でも、本当は……", $"剣より寸胴鍋。\n本当は、{wanted}になりたい。\n村いちばんの「{goalName}」を作るのが夢だ。"));
+                cards.Add(new Card("でも、本当は……", Dream(role, wanted, goalName)));
                 cards.Add(new Card("ただし", $"「{imposed}らしくない」ところを村人に見られたら、\nすぐに村じゅうのうわさになってしまう。"));
             }
             cards.Add(new Card("今日の目標",
                 $"日が沈むまで（{minutes}分）に、\nだれにも見られずに <color=#FFD23F>{goalName}</color> を完成させよう！\n\n" +
-                "<size=30>① 村長のお題をこなして、村を安心させる\n② 見られていない隙に、素材を集める\n③ 台所の作業台で、こっそり料理する</size>"));
+                $"<size=30>① 村長のお題をこなして、村を安心させる\n② 見られていない隙に、素材を集める\n③ {StationArea()}の作業台で、こっそり{Craft()}</size>"));
             if (guide)
             {
-                cards.Add(new Card("操作",
-                    "<size=32>WASD / 矢印　歩く\nE　拾う・話す・作業台を使う（長押しでお題の動作）\nTab　持ち物　　M / 地図をクリック　村の地図\nEsc　一時停止</size>\n\n" +
-                    "<size=28>右の「次：」と地図の <color=#FA80C7>★</color> が、次に行く場所だよ</size>"));
             }
 
             yield return ShowSequence(cards, true);
-            introDone = true;
             if (guide)
             {
+                // 操作は止めずに、画面の下で説明する。まず歩いてもらう
+                yield return ControlsBanner();
+                introDone = true;
                 Subscribe();
-                // 最初のお題はもう出ているので、ここで説明する
+                // 最初のお題はもう出ているので、歩けたあとで説明する
                 if (context.Tasks != null && context.Tasks.Current != null) OnTaskAssigned(context.Tasks.Current);
                 PlayerPrefs.SetInt(DoneKey, 1);
             }
+            else introDone = true;
+        }
+
+        // 画面の下に操作を出す（時間は止めない）。3m 歩いたら次の説明へ。残りの操作は少しの間だけ出す
+        private IEnumerator ControlsBanner()
+        {
+            banner.gameObject.SetActive(true);
+            bannerText.text = "<color=#FFD23F>WASD</color> / <color=#FFD23F>矢印キー</color> で歩いてみよう";
+            UiFx.Punch(this, banner, 0.06f, 0.25f);
+            Vector3 start = context.Player != null ? context.Player.position : Vector3.zero;
+            float t = 0f;
+            while (context.Player != null && Vector3.Distance(start, context.Player.position) < 3f && t < 20f)
+            {
+                t += Time.deltaTime;
+                yield return null;
+            }
+            bannerText.text = "<color=#FFD23F>E</color> 拾う・話す・作業台（長押しでお題の動作）　<color=#FFD23F>Tab</color> 持ち物　<color=#FFD23F>M</color> 地図　<color=#FFD23F>Esc</color> 一時停止\n" +
+                              "画面の矢印が次の行き先：<color=#FFD23F>！</color> お題　<color=#FA80C7>★</color> 目標";
+            UiFx.Punch(this, banner, 0.06f, 0.25f);
+            StartCoroutine(HideBannerLater(9f));
+            yield return new WaitForSeconds(1.2f);
+        }
+
+        private IEnumerator HideBannerLater(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            if (banner != null) banner.gameObject.SetActive(false);
         }
 
         // ---------- 途中の説明 ----------
@@ -159,7 +189,7 @@ namespace Team5.UI
                 if (surveillance.IsPlayerWatched && !wasWatched)
                     Tip("watched", "見られている！",
                         "村人の足元の扇形が<color=#FF6A5A>赤</color>くなり、右上の目が開いたら、見られているしるし。\n\n" +
-                        "見られている間に <color=#FFD23F>素材を拾う・料理する・道から外れる</color> と、\n「らしくない」ことがばれて <color=#FF6A5A>平和度 −25</color>。\n" +
+                        "見られている間に <color=#FFD23F>素材を拾う・作業台で作る・道から外れる</color> と、\n「らしくない」ことがばれて <color=#FF6A5A>平和度 −25</color>。\n" +
                         "お題をこなすのは、見られていても大丈夫。");
                 wasWatched = surveillance.IsPlayerWatched;
             }
@@ -174,11 +204,11 @@ namespace Team5.UI
             string how = def.type switch
             {
                 TaskType.ActionAtSpot => $"地図の<color=#FFD23F>！</color>の場所へ行き、E を長押し。",
-                TaskType.TalkToNpc => "地図の<color=#FFD23F>！</color>の村人に近づいて、E で話しかける。",
-                _ => $"「{(def.requiredItem != null ? def.requiredItem.displayName : "頼まれた物")}」を{def.requiredCount}つ集めて、地図の<color=#FFD23F>！</color>の場所で E。",
+                TaskType.TalkToNpc => $"<color=#FFD23F>{NpcNameplateView.NameOf(def.targetSpotId)}</color>（頭の上の名前が金色の人）に近づいて、E で話しかける。",
+                _ => $"「{(def.requiredItem != null ? def.requiredItem.displayName : "頼まれた物")}」を{def.requiredCount}つ集めて、村長の家で E。\n{ItemWhere(def.requiredItem)}",
             };
             Tip("task", "村長のお題",
-                $"左のカード：<color=#FFD23F>{def.title}</color>\n{how}\n\n" +
+                $"左のカード：<color=#FFD23F>{def.title}</color>\n{how}\n画面の<color=#FFD23F>黄色の矢印</color>が行き先を指すよ。\n\n" +
                 "こなすと村は安心する（<color=#8EE59A>平和度 ＋</color>）。でも、自分の色はうすくなる（<color=#FF9A6A>個性 −</color>）。\n" +
                 "時間切れになると平和度が下がるよ。");
         }
@@ -186,23 +216,24 @@ namespace Team5.UI
         private void OnTaskCompleted(TaskInstance task)
         {
             string reward = task != null && task.Definition != null && task.Definition.rewardItem != null
-                ? $"\nごほうびに「{task.Definition.rewardItem.displayName}」をもらった！ 料理の材料になる。" : "";
+                ? $"\nごほうびに「{task.Definition.rewardItem.displayName}」をもらった！ 目標の材料になる。" : "";
             Tip("task_done", "お題をこなした",
                 $"村長は満足そうだ。平和度が上がった。\nでも、{imposed}らしくしたぶん、自分の色が少しうすくなった。{reward}\n\n" +
-                $"次は、だれも見ていない隙に、{wanted}への準備を進めよう。");
+                $"次のお題が出るまでの間に、{wanted}への準備を進めよう。" + NextLine());
         }
 
         private void OnTaskFailed(TaskInstance task)
         {
             Tip("task_fail", "お題に間に合わなかった……",
-                "村長はがっかりしている（<color=#FF6A5A>平和度 −</color>）。\n平和度が 0 になると、村から追い出されてゲームオーバー。\n次のお題はなるべくこなそう。");
+                "村長はがっかりしている（<color=#FF6A5A>平和度 −</color>）。平和度が 0 になると、村から追い出されてゲームオーバー。\n\n" +
+                $"<color=#FFD23F>{Interval()}秒ほどで次のお題が出る</color>。それまでは、自分の目標を進めよう。" + NextLine());
         }
 
         private void OnCaught(NPC.VisionSensor by)
         {
             Tip("caught", "見つかってしまった！",
                 $"「{imposed}らしくない」ところを見られた（<color=#FF6A5A>平和度 −25</color>）。\n\n" +
-                "平和度が 0 になると、村から追い出されてゲームオーバー。\n扇形の外に出てから、もう一度やろう。");
+                "平和度が 0 になると、村から追い出されてゲームオーバー。\n扇形の外に出てから、もう一度やろう。" + NextLine());
         }
 
         private void OnInventoryChanged()
@@ -216,7 +247,7 @@ namespace Team5.UI
                     {
                         Tip("pickup", "素材を手に入れた！",
                             "右の「目標」に、集めた数が出るよ（Tab で持ち物も見られる）。\n\n" +
-                            "料理の材料は、見られていない隙に集めよう。");
+                            "材料は、見られていない隙に集めよう。" + NextLine());
                         goto checkReady;
                     }
             }
@@ -225,7 +256,7 @@ namespace Team5.UI
                 if (recipe != null && context.Inventory.Has(recipe.inputs))
                 {
                     Tip("ready", "材料がそろった！",
-                        $"台所の作業台へ行き、E で「{recipe.displayName}」を作ろう。\n\n" +
+                        $"{StationArea()}の作業台へ行き、E で「{recipe.displayName}」を作ろう（<color=#FA80C7>ピンクの矢印</color>）。\n\n" +
                         "作っている間に見られると、中断して<color=#FF6A5A>平和度 −25</color>。\nまわりに村人がいないのを確かめてから！");
                     break;
                 }
@@ -234,9 +265,9 @@ namespace Team5.UI
         private void OnCrafted(RecipeDefinition recipe)
         {
             if (role != null && recipe != null && recipe.output == role.goalItem) return; // 完成のときはクリアの演出に任せる
-            Tip("crafted", "こっそり料理できた！",
+            Tip("crafted", "こっそり作れた！",
                 $"{wanted}に近づいた（左上の<color=#FFD23F>進み具合 ＋</color>）。\n自分の色も濃くなった（<color=#8EE59A>個性 ＋</color>）。\n\n" +
-                $"進み具合が 100 になれば、{wanted}になれる！");
+                $"進み具合が 100 になれば、{wanted}になれる！" + NextLine());
         }
 
         private void OnParameterChanged(ParameterType type, float before, float after)
@@ -244,7 +275,42 @@ namespace Team5.UI
             if (type == ParameterType.Individuality && after < 25f && after < before)
                 Tip("faded", "自分の色がうすくなってきた……",
                     $"{imposed}らしくしすぎると、本当の自分を見失ってしまう。\n個性が 0 になるとゲームオーバー（20 未満だと足も遅くなる）。\n\n" +
-                    "こっそり料理すると、色が戻るよ。");
+                    $"こっそり{Craft()}と、色が戻るよ。");
+        }
+
+        private static string Dream(RoleDefinition role, string wanted, string goalName)
+        {
+            switch (role != null ? role.roleId?.Trim() : "")
+            {
+                case "ramen_chef": return $"剣より寸胴鍋。\n本当は、{wanted}になりたい。\n村いちばんの「{goalName}」を作るのが夢だ。";
+                case "band_man": return $"家を継ぐより、音楽がやりたい。\n本当は、{wanted}になりたい。\n自分の曲を作って、仲間と演奏するのが夢だ。";
+                case "librarian": return $"ハンマーより本。\n本当は、{wanted}になりたい。\n村に小さな図書館を開くのが夢だ。";
+                case "progamer": return $"畑より、ゲームの世界。\n本当は、{wanted}になりたい。\n世界大会に出るのが夢だ。";
+                default: return $"本当は、{wanted}になりたい。\n「{goalName}」を完成させるのが夢だ。";
+            }
+        }
+
+        private string Craft() => role != null && role.roleId?.Trim() == "ramen_chef" ? "料理する" : "作る";
+
+        private static string StationArea()
+        {
+            var station = FindAnyObjectByType<CraftStation>();
+            return ObjectiveView.AreaOf(station != null ? station.transform : null);
+        }
+
+        private int Interval() => context != null && context.Balance != null ? Mathf.RoundToInt(context.Balance.taskIntervalSeconds) : 20;
+
+        private string ItemWhere(ItemDefinition item)
+        {
+            if (item == null) return "";
+            foreach (var pickup in FindObjectsByType<ItemPickup>(FindObjectsSortMode.None))
+                if (pickup.Item == item) return $"{item.displayName}は{ObjectiveView.AreaOf(pickup.transform)}にあるよ。";
+            return "";
+        }
+
+        private static string NextLine()
+        {
+            return string.IsNullOrEmpty(ObjectiveView.NextText) ? "" : $"\n\n<color=#FA80C7>次：{ObjectiveView.NextText}</color>";
         }
 
         // 同じ説明は 1 回だけ。カードを出している間に来たものは順番待ち
@@ -364,6 +430,19 @@ namespace Team5.UI
             pageText.color = new Color(1f, 1f, 1f, 0.6f);
 
             root.gameObject.SetActive(false);
+
+            // 操作の帯（画面の下・時間は止めない）
+            var bannerImage = new GameObject("ControlsBanner", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            bannerImage.transform.SetParent(canvasGo.transform, false);
+            banner = bannerImage.rectTransform;
+            banner.anchorMin = banner.anchorMax = new Vector2(0.5f, 0f);
+            banner.pivot = new Vector2(0.5f, 0f);
+            banner.anchoredPosition = new Vector2(-120f, 40f);
+            banner.sizeDelta = new Vector2(1240f, 110f);
+            bannerImage.color = new Color(0.09f, 0.07f, 0.11f, 0.88f);
+            bannerImage.raycastTarget = false;
+            bannerText = MakeText(banner, "Text", 26, new Vector2(20f, -106f), new Vector2(-20f, -4f), TextAnchor.MiddleCenter);
+            banner.gameObject.SetActive(false);
 
             // 一時停止
             var pause = new GameObject("Pause", typeof(RectTransform), typeof(Image));
