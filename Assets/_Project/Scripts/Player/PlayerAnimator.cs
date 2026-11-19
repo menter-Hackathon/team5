@@ -117,7 +117,14 @@ namespace Team5.Player
                 speed = velocity.magnitude;
             }
             bool moving = speed > moveThreshold && !ended;
-            animator.speed = moving ? Mathf.Clamp(speed / walkSpeedForAnim, 0.6f, 1.4f) : 0f;
+            if (!moving && animator.speed > 0f)
+            {
+                // 止まったら 1 コマ目の姿に戻す（走りの途中で固まらないように）
+                animator.Play(animator.GetCurrentAnimatorStateInfo(0).fullPathHash, 0, 0f);
+                animator.speed = 0f;
+                animator.Update(0f);
+            }
+            else if (moving) animator.speed = Mathf.Clamp(speed / walkSpeedForAnim, 0.6f, 1.4f);
             SetFloat(SpeedId, Mathf.Clamp01(speed / walkSpeedForAnim));
 
             bool nowCrafting = context != null && context.Crafting != null && context.Crafting.IsCrafting;
