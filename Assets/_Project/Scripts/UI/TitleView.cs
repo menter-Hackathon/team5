@@ -25,7 +25,7 @@ namespace Team5.UI
             if (titlePanel != null && titlePanel.transform.Find("StartButton") is RectTransform start) StartCoroutine(Breathe(start));
         }
 
-        // 「はじめる」をゆっくり脈打たせて、押すところだと分かるようにする
+        // 「入村してみる」をゆっくり脈打たせて、押すところだと分かるようにする
         private System.Collections.IEnumerator Breathe(RectTransform target)
         {
             yield return new WaitForSecondsRealtime(1.2f);
@@ -36,7 +36,7 @@ namespace Team5.UI
             }
         }
 
-        // 「はじめる」ボタンから呼ぶ
+        // 「入村してみる」ボタンから呼ぶ
         public void OnStartPressed()
         {
             if (GameManager.Instance == null)
