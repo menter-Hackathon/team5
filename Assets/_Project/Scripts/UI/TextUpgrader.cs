@@ -83,6 +83,13 @@ namespace Team5.UI
             var asset = GetFontAsset(font);
             if (asset == null) return null; // 作れないときは元の Text のまま
 
+            // 見本の行を複製した Text には、見本の TMP も一緒に複製されている。二重に描かないように消す
+            for (int i = source.transform.childCount - 1; i >= 0; i--)
+            {
+                var child = source.transform.GetChild(i);
+                if (child.name == "TMP" && child.GetComponent<TextMeshProUGUI>() != null) Destroy(child.gameObject);
+            }
+
             var go = new GameObject("TMP", typeof(RectTransform));
             go.layer = source.gameObject.layer;
             var rect = (RectTransform)go.transform;
