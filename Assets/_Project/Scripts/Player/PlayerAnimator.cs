@@ -12,6 +12,18 @@ namespace Team5.Player
         [SerializeField] private Animator animator;          // 空なら子から探す
         [SerializeField] private float moveThreshold = 0.1f; // これより速く動いていたら歩きモーション
         [SerializeField] private float walkSpeedForAnim = 4f; // この速さで Speed = 1
+        [SerializeField] private float idleBlendSeconds = 0.25f; // 止まってから待機の姿勢になるまで
+
+        // 待機の姿勢（Humanoid の筋肉の値）。走りの 1 コマ目のままだと足を開いたまま固まるので、まっすぐ立たせて息づかいを足す
+        private static readonly (string muscle, float value)[] IdlePose =
+        {
+            ("Left Arm Down-Up", -0.62f), ("Right Arm Down-Up", -0.62f),
+            ("Left Arm Front-Back", 0.18f), ("Right Arm Front-Back", 0.18f),
+            ("Left Forearm Stretch", 0.75f), ("Right Forearm Stretch", 0.75f),
+            ("Left Upper Leg Front-Back", 0.02f), ("Right Upper Leg Front-Back", 0.02f),
+            ("Left Upper Leg In-Out", 0.05f), ("Right Upper Leg In-Out", 0.05f),
+            ("Left Lower Leg Stretch", 0.98f), ("Right Lower Leg Stretch", 0.98f),
+        };
 
         private static readonly int SpeedId = Animator.StringToHash("Speed");
         private static readonly int PickupId = Animator.StringToHash("Pickup");
@@ -36,6 +48,12 @@ namespace Team5.Player
         private bool crafting;
         private bool ended; // ゲームが終わった（クリア・ゲームオーバーの姿勢を続ける）
 
+        private HumanPoseHandler poseHandler;
+        private HumanPose pose;
+        private float[] idleMuscles;
+        private float idleWeight;
+        private int spineFB, chestFB, headTurn, headNod, leftArmFB, rightArmFB, leftArmDU, rightArmDU;
+
         private void Awake()
         {
             controller = GetComponent<CharacterController>();
@@ -47,6 +65,58 @@ namespace Team5.Player
                 baseRotation = model.localRotation;
                 baseScale = model.localScale;
             }
+            SetupIdlePose();
+        }
+
+        private void SetupIdlePose()
+        {
+            if (animator == null || animator.avatar == null || !animator.avatar.isHuman) return;
+            poseHandler = new HumanPoseHandler(animator.avatar, animator.transform);
+            idleMuscles = new float[HumanTrait.MuscleCount];
+            foreach (var (muscle, value) in IdlePose)
+            {
+                int i = MuscleIndex(muscle);
+                if (i >= 0) idleMuscles[i] = value;
+            }
+            spineFB = MuscleIndex("Spine Front-Back");
+            chestFB = MuscleIndex("Chest Front-Back");
+            headTurn = MuscleIndex("Head Turn Left-Right");
+            headNod = MuscleIndex("Head Nod Down-Up");
+            leftArmFB = MuscleIndex("Left Arm Front-Back");
+            rightArmFB = MuscleIndex("Right Arm Front-Back");
+            leftArmDU = MuscleIndex("Left Arm Down-Up");
+            rightArmDU = MuscleIndex("Right Arm Down-Up");
+        }
+
+        private static int MuscleIndex(string name)
+        {
+            for (int i = 0; i < HumanTrait.MuscleCount; i++) if (HumanTrait.MuscleName[i] == name) return i;
+            return -1;
+        }
+
+        // 待機のモーション：まっすぐ立って、息をする・ときどき左右を見る・腕が少し揺れる
+        private void ApplyIdlePose()
+        {
+            if (poseHandler == null || idleWeight <= 0.001f) return;
+            poseHandler.GetHumanPose(ref pose);
+            float t = Time.time;
+            float breath = Mathf.Sin(t * 2.2f);
+            // ゆっくり左右を見る（止まる時間を長めに）
+            float look = Mathf.Sin(t * 0.45f);
+            look = Mathf.Sign(look) * Mathf.SmoothStep(0f, 1f, Mathf.Abs(look));
+            for (int i = 0; i < pose.muscles.Length && i < idleMuscles.Length; i++)
+            {
+                float target = idleMuscles[i];
+                if (i == spineFB) target += 0.04f * breath;
+                else if (i == chestFB) target += 0.05f * breath;
+                else if (i == headTurn) target += 0.28f * look;
+                else if (i == headNod) target += 0.04f * Mathf.Sin(t * 2.2f + 0.6f);
+                else if (i == leftArmFB) target += 0.04f * Mathf.Sin(t * 1.1f);
+                else if (i == rightArmFB) target += 0.04f * Mathf.Sin(t * 1.1f + 1.4f);
+                else if (i == leftArmDU || i == rightArmDU) target += 0.025f * breath;
+                pose.muscles[i] = Mathf.Lerp(pose.muscles[i], target, idleWeight);
+            }
+            poseHandler.SetHumanPose(ref pose);
         }
 
         private void Start()
@@ -60,6 +130,7 @@ namespace Team5.Player
 
         private void OnDestroy()
         {
+            poseHandler?.Dispose();
             if (context != null && context.Surveillance != null) context.Surveillance.OnCaught -= HandleCaught;
             if (spots != null) foreach (var spot in spots) if (spot != null) spot.OnActing -= HandleActing;
         }
@@ -125,6 +196,8 @@ namespace Team5.Player
                 animator.Update(0f);
             }
             else if (moving) animator.speed = Mathf.Clamp(speed / walkSpeedForAnim, 0.6f, 1.4f);
+            float idleTarget = moving || ended ? 0f : 1f;
+            idleWeight = Mathf.MoveTowards(idleWeight, idleTarget, Time.deltaTime / Mathf.Max(0.01f, idleBlendSeconds));
             SetFloat(SpeedId, Mathf.Clamp01(speed / walkSpeedForAnim));
 
             bool nowCrafting = context != null && context.Crafting != null && context.Crafting.IsCrafting;
@@ -139,6 +212,7 @@ namespace Team5.Player
         private void LateUpdate()
         {
             if (model == null) return;
+            ApplyIdlePose();
 
             float t = Time.time;
             Vector3 offset = Vector3.zero;
@@ -146,7 +220,7 @@ namespace Team5.Player
             Vector3 scale = Vector3.one;
 
             bool still = animator != null && animator.speed == 0f;
-            if (still && !ended) scale.y += 0.015f * Mathf.Sin(t * 2.2f); // 待機：呼吸
+            if (still && !ended && poseHandler == null) scale.y += 0.015f * Mathf.Sin(t * 2.2f); // 待機：呼吸（Humanoid でないとき）
 
             if (acting && !ended)
             {

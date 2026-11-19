@@ -150,8 +150,9 @@ namespace Team5.Player
             Sparkle(Chest, roleColor, 60);
             Sparkle(Head, Color.white, 30);
 
+            // 画面の真ん中に EndBannerView が「クリア！」を出すときは、頭の上の文字は出さない（重なるので）
             string name = role != null ? role.displayName : "なりたい自分";
-            if (WorldFx.Instance != null) WorldFx.Instance.ShowText(Head + Vector3.up * 0.3f, $"{name}になれた！", roleColor, 2.2f, 72);
+            if (WorldFx.Instance != null && FindAnyObjectByType<Team5.UI.EndBannerView>() == null) WorldFx.Instance.ShowText(Head + Vector3.up * 0.3f, $"{name}になれた！", roleColor, 2.2f, 72);
         }
 
         private IEnumerator FadedRoutine()
