@@ -44,6 +44,9 @@ namespace Team5.UI
                 Debug.LogWarning("GameManager がありません。Title シーンから再生してください。", this);
                 return;
             }
+            // 「体験入村してみる」にチェック、または初めて遊ぶときはチュートリアルから（CD-16）
+            var toggle = titlePanel != null ? titlePanel.GetComponentInChildren<UnityEngine.UI.Toggle>(true) : null;
+            TutorialView.Requested = (toggle != null && toggle.isOn) || TutorialView.ShouldShowOnFirstPlay;
             GameManager.Instance.StartGame(defaultRole);
         }
 
