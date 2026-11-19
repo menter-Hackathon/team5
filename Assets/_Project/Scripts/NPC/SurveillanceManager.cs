@@ -75,8 +75,14 @@ namespace Team5.NPC
 
         private void StopAndFacePlayer(VisionSensor watcher, Transform player)
         {
-            if (watcher.TryGetComponent(out NpcPatrol patrol)) patrol.Pause(caughtPauseSeconds);
+            bool hasPatrol = watcher.TryGetComponent(out NpcPatrol patrol);
+            if (hasPatrol) patrol.Pause(caughtPauseSeconds);
             if (player == null) return;
+            if (hasPatrol)
+            {
+                patrol.FaceTowards(player.position); // くるっと一瞬で向かず、素早く振り向く
+                return;
+            }
 
             Vector3 toPlayer = player.position - watcher.transform.position;
             toPlayer.y = 0f;
