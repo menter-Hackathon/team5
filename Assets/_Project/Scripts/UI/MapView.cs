@@ -11,7 +11,7 @@ using UnityEngine.UI;
 namespace Team5.UI
 {
     // 地図。左下にプレイヤーのまわりの小さな地図を出し、M（ゲームパッド Select）で村全体の地図を開く。Game シーンに置く
-    // 村は始まったときに真上から 1 回だけ撮る。プレイヤー・村人・お題の場所・素材・作業台は印で重ねる
+    // 村は真上のカメラでそのまま映す（村人の動きも見える）。プレイヤー・村人・お題の場所・素材・作業台は印で重ねる。地図をクリックしても開く
     public class MapView : MonoBehaviour
     {
         [SerializeField] private Font font;
@@ -62,10 +62,11 @@ namespace Team5.UI
             context = GameSceneContext.Instance;
             circle = MakeCircle();
             arrow = MakeArrow();
-            snapshot = new RenderTexture(1024, 1024, 24) { name = "MapSnapshot" };
+            snapshot = new RenderTexture(1024, 1024, 24) { name = "MapView" };
+            StartMapCamera();
             BuildUi();
             CollectMarkers();
-            yield return TakeSnapshot();
+            yield break;
         }
 
         private void OnDestroy()
@@ -75,42 +76,24 @@ namespace Team5.UI
 
         // ---------- 村を真上から撮る ----------
 
-        private System.Collections.IEnumerator TakeSnapshot()
+        private Camera mapCamera;
+
+        // 村を真上から映すカメラ。村人の動きもそのまま映る（数フレームに 1 回だけ描く）
+        private void StartMapCamera()
         {
             var camGo = new GameObject("MapCamera");
-            var cam = camGo.AddComponent<Camera>();
+            camGo.transform.SetParent(transform, false);
+            mapCamera = camGo.AddComponent<Camera>();
             Vector2 center = (worldMin + worldMax) * 0.5f;
-            cam.transform.SetPositionAndRotation(new Vector3(center.x, 60f, center.y), Quaternion.Euler(90f, 0f, 0f));
-            cam.orthographic = true;
-            cam.orthographicSize = Mathf.Max(WorldSize.x, WorldSize.y) * 0.5f;
-            cam.nearClipPlane = 1f;
-            cam.farClipPlane = 120f;
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = new Color(0.36f, 0.55f, 0.32f);
-            cam.targetTexture = snapshot;
-            cam.depth = -50f;
-
-            // 動くもの・消えるものは印で出すので写さない
-            var hidden = new List<Renderer>();
-            void Hide(Component root)
-            {
-                foreach (var r in root.GetComponentsInChildren<Renderer>())
-                    if (r.enabled) { r.enabled = false; hidden.Add(r); }
-            }
-            foreach (var npc in FindObjectsByType<NpcPatrol>(FindObjectsSortMode.None)) Hide(npc);
-            foreach (var npc in FindObjectsByType<NpcTalkable>(FindObjectsSortMode.None)) Hide(npc);
-            foreach (var pickup in FindObjectsByType<ItemPickup>(FindObjectsSortMode.None)) Hide(pickup);
-            foreach (var sensor in FindObjectsByType<VisionSensor>(FindObjectsSortMode.None)) Hide(sensor);
-            if (context != null && context.Player != null) Hide(context.Player);
-            foreach (var ps in FindObjectsByType<ParticleSystemRenderer>(FindObjectsSortMode.None))
-                if (ps.enabled) { ps.enabled = false; hidden.Add(ps); }
-
-            // 1 フレームだけ動かして撮る（URP では Camera.Render が効かないことがあるため）
-            yield return new WaitForEndOfFrame();
-            yield return null;
-            cam.enabled = false;
-            foreach (var r in hidden) if (r != null) r.enabled = true;
-            Destroy(camGo);
+            mapCamera.transform.SetPositionAndRotation(new Vector3(center.x, 60f, center.y), Quaternion.Euler(90f, 0f, 0f));
+            mapCamera.orthographic = true;
+            mapCamera.orthographicSize = Mathf.Max(WorldSize.x, WorldSize.y) * 0.5f;
+            mapCamera.nearClipPlane = 1f;
+            mapCamera.farClipPlane = 120f;
+            mapCamera.clearFlags = CameraClearFlags.SolidColor;
+            mapCamera.backgroundColor = new Color(0.36f, 0.55f, 0.32f);
+            mapCamera.targetTexture = snapshot;
+            mapCamera.depth = -50f;
         }
 
         // ---------- 画面 ----------
@@ -132,7 +115,8 @@ namespace Team5.UI
             frame.anchorMin = frame.anchorMax = frame.pivot = new Vector2(0f, 0f);
             frame.anchoredPosition = new Vector2(28f, 28f);
             frame.sizeDelta = new Vector2(miniSize + 12f, miniSize + 12f);
-            AddPanel(frame);
+            AddPanel(frame).raycastTarget = true;
+            AddClick(frame); // クリックでも全体の地図を開く
 
             miniRoot = NewRect("Mask", frame);
             miniRoot.sizeDelta = new Vector2(miniSize, miniSize);
@@ -145,7 +129,7 @@ namespace Team5.UI
             miniImage.texture = snapshot;
             miniImage.raycastTarget = false;
 
-            var keyHint = NewText("M：地図", frame, 20, TextAnchor.UpperCenter);
+            var keyHint = NewText("M・クリック：地図を広げる", frame, 20, TextAnchor.UpperCenter);
             keyHint.rectTransform.anchorMin = keyHint.rectTransform.anchorMax = new Vector2(0.5f, 1f);
             keyHint.rectTransform.pivot = new Vector2(0.5f, 0f);
             keyHint.rectTransform.anchoredPosition = new Vector2(0f, 4f);
@@ -156,7 +140,8 @@ namespace Team5.UI
             // 村全体の地図（M で開く）
             fullPanel = NewRect("FullMap", canvasGo.transform);
             fullPanel.sizeDelta = new Vector2(fullSize + 40f, fullSize + 90f);
-            AddPanel(fullPanel);
+            AddPanel(fullPanel).raycastTarget = true;
+            AddClick(fullPanel); // クリックで閉じる
             var title = NewText("村の地図", fullPanel, 34, TextAnchor.MiddleCenter);
             title.rectTransform.anchorMin = title.rectTransform.anchorMax = new Vector2(0.5f, 1f);
             title.rectTransform.anchoredPosition = new Vector2(0f, -32f);
@@ -169,7 +154,7 @@ namespace Team5.UI
             fullImage.texture = snapshot;
             fullImage.raycastTarget = false;
 
-            var legend = NewText("<color=#FFE15A>▲</color> 自分　<color=#FF5A4A>●</color> 村人（赤：見られている）　<color=#FFD23C>！</color> お題　<color=#7CF08A>◆</color> 素材　<color=#FFA040>■</color> 作業台　　M で閉じる",
+            var legend = NewText("<color=#FFE15A>▲</color> 自分　<color=#FF5A4A>●</color> 村人（赤：見られている）　<color=#FFD23C>！</color> お題　<color=#7CF08A>◆</color> 素材　<color=#FFA040>■</color> 作業台　　M・クリックで閉じる",
                 fullPanel, 22, TextAnchor.MiddleCenter);
             legend.supportRichText = true;
             legend.rectTransform.anchorMin = legend.rectTransform.anchorMax = new Vector2(0.5f, 0f);
@@ -231,17 +216,34 @@ namespace Team5.UI
 
         private void Update()
         {
+            // 地図のカメラは 3 フレームに 1 回だけ描く（重くしない）
+            if (mapCamera != null) mapCamera.enabled = Time.frameCount % 3 == 0;
+
             var keyboard = Keyboard.current;
             bool toggle = (keyboard != null && keyboard.mKey.wasPressedThisFrame)
                           || (Gamepad.current != null && Gamepad.current.selectButton.wasPressedThisFrame);
             bool ended = GameManager.Instance != null && GameManager.Instance.State == GameState.Result;
-            if (fullPanel != null && toggle && !ended)
-            {
-                bool open = !fullPanel.gameObject.activeSelf;
-                fullPanel.gameObject.SetActive(open);
-                if (open) UiFx.Punch(this, fullPanel, 0.04f, 0.2f);
-            }
+            if (toggle && !ended) ToggleFull();
             if (ended && fullPanel != null && fullPanel.gameObject.activeSelf) fullPanel.gameObject.SetActive(false);
+        }
+
+        private void AddClick(RectTransform rect)
+        {
+            var button = rect.gameObject.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.navigation = new Navigation { mode = Navigation.Mode.None };
+            button.onClick.AddListener(ToggleFull);
+        }
+
+        private void ToggleFull()
+        {
+            // ボタンが選ばれたままだと Space / Enter でも開閉してしまうので外す
+            if (UnityEngine.EventSystems.EventSystem.current != null) UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+            if (fullPanel == null) return;
+            if (GameManager.Instance != null && GameManager.Instance.State == GameState.Result) return;
+            bool open = !fullPanel.gameObject.activeSelf;
+            fullPanel.gameObject.SetActive(open);
+            if (open) UiFx.Punch(this, fullPanel, 0.04f, 0.2f);
         }
 
         private void LateUpdate()
@@ -341,13 +343,14 @@ namespace Team5.UI
             return (RectTransform)go.transform;
         }
 
-        private void AddPanel(RectTransform rect)
+        private Image AddPanel(RectTransform rect)
         {
             var image = rect.gameObject.AddComponent<Image>();
             image.sprite = panelSprite;
             image.type = panelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
             image.color = panelSprite != null ? new Color(1f, 1f, 1f, 0.92f) : new Color(0.1f, 0.08f, 0.06f, 0.85f);
             image.raycastTarget = false;
+            return image;
         }
 
         private Text NewText(string value, Transform parent, int size, TextAnchor anchor)
