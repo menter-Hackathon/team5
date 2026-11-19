@@ -68,6 +68,22 @@ namespace Team5.Items
             return true;
         }
 
+        // クリアの演出で、まだ着ていない服を着せる（outfits.md 5 章の 2）。見つかる判定も個性の増加もしない
+        public void WearForEnding(OutfitDefinition outfit)
+        {
+            if (outfit == null || IsWearing(outfit)) return;
+            Unequip(outfit.attachPoint);
+            GameObject model = null;
+            if (outfit.prefab != null)
+            {
+                model = Instantiate(outfit.prefab, AttachPoint(outfit.attachPoint), false);
+                model.name = outfit.prefab.name;
+            }
+            worn[outfit.attachPoint] = (outfit, model);
+            UpdateStage();
+            if (appearance != null) appearance.RefreshRenderers();
+        }
+
         private void Unequip(string attachPoint)
         {
             if (!worn.TryGetValue(attachPoint, out var entry)) return;

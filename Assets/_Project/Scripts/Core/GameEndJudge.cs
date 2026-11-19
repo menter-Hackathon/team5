@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using Team5.Player;
 using UnityEngine;
 
@@ -7,6 +9,10 @@ namespace Team5.Core
     public class GameEndJudge : MonoBehaviour
     {
         [SerializeField] private PlayerMover mover; // 空なら GameSceneContext.Player から探す
+        [SerializeField] private float endEffectSeconds = 2.5f; // 勝敗が決まってから結果画面に移るまで、演出（AN-03）を見せる秒数
+
+        // 勝敗が決まった瞬間（結果画面に移る前）。PlayerVfx がクリア・ゲームオーバーの演出を出す
+        public event Action<GameResult> OnEnding;
 
         private GameSceneContext context;
         private bool ended;
@@ -74,6 +80,15 @@ namespace Team5.Core
                 timesCaught = context.Surveillance != null ? context.Surveillance.TimesCaught : 0,
             };
 
+            if (mover != null) mover.CanMove = false;
+            if (context.Player != null && context.Player.TryGetComponent(out PlayerInteractor interactor)) interactor.enabled = false;
+            OnEnding?.Invoke(result);
+            StartCoroutine(EndAfterEffect(result, summary));
+        }
+
+        private IEnumerator EndAfterEffect(GameResult result, GameResultSummary summary)
+        {
+            yield return new WaitForSecondsRealtime(endEffectSeconds);
             var manager = GameManager.Instance;
             if (manager != null) manager.EndGame(result, summary);
             else Debug.Log($"[GameEndJudge] {result}（GameManager がないので結果画面には行きません。Title から再生してください）", this);
