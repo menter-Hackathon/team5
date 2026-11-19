@@ -14,6 +14,9 @@ namespace Team5.Items
         [SerializeField] private int count = 1;
         [SerializeField] private bool suspicious = true; // 見られているときに拾うと「らしくない行動」
 
+        public ItemDefinition Item => item;
+        public int Count => count;
+
         public string Prompt => $"拾う：{item.displayName}";
         public bool IsSuspicious => suspicious;
 

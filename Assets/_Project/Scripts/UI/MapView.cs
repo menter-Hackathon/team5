@@ -51,6 +51,7 @@ namespace Team5.UI
         private readonly List<Marker> markers = new List<Marker>();
         private Marker playerMarker;
         private Marker targetMarker;
+        private Marker goalMarker; // 目標（ObjectiveView）の次に行く場所
         private Sprite circle;
         private Sprite arrow;
         private TaskInstance shownTask;
@@ -187,12 +188,13 @@ namespace Team5.UI
                 var m = AddMarker(Kind.Npc, sensor.transform, circle, new Color(1f, 0.55f, 0.3f), 16f);
                 m.sensor = sensor;
             }
+            goalMarker = AddMarker(Kind.Target, null, circle, new Color(0.98f, 0.5f, 0.78f), 24f, "★");
             targetMarker = AddMarker(Kind.Target, null, circle, new Color(1f, 0.82f, 0.24f), 26f);
             if (context != null && context.Player != null)
                 playerMarker = AddMarker(Kind.Player, context.Player, arrow, new Color(1f, 0.88f, 0.35f), 26f);
         }
 
-        private Marker AddMarker(Kind kind, Transform target, Sprite sprite, Color color, float size)
+        private Marker AddMarker(Kind kind, Transform target, Sprite sprite, Color color, float size, string label = "！")
         {
             var m = new Marker { kind = kind, target = target };
             m.miniImage = NewIcon(miniRoot, sprite, color, size);
@@ -203,7 +205,7 @@ namespace Team5.UI
             {
                 foreach (var image in new[] { m.miniImage, m.fullImage })
                 {
-                    var mark = NewText("！", image.transform, 22, TextAnchor.MiddleCenter);
+                    var mark = NewText(label, image.transform, 22, TextAnchor.MiddleCenter);
                     mark.color = new Color(0.25f, 0.15f, 0f);
                     mark.rectTransform.sizeDelta = image.rectTransform.sizeDelta;
                 }
@@ -299,6 +301,7 @@ namespace Team5.UI
         // 今のお題の場所に印を動かす
         private void UpdateTarget()
         {
+            if (goalMarker != null) goalMarker.target = ObjectiveView.NextTarget;
             if (targetMarker == null) return;
             var task = context != null && context.Tasks != null ? context.Tasks.Current : null;
             if (task == shownTask && (task == null || targetMarker.target != null)) return;
