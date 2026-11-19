@@ -2275,6 +2275,55 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2664385884051642660, guid: d68afc8092d5cd84d862a81173e6be54, type: 3}
   m_PrefabInstance: {fileID: 1348954950}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1359337795
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1359337797}
+  - component: {fileID: 1359337796}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1359337796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359337795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40ae11dce48e045e5805aeae5f798ab7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  library: {fileID: 11400000, guid: a66f9ca1ab711447e89b9d76102215a6, type: 2}
+  bgmVolume: 0.5
+  seVolume: 0.8
+  crossfadeSeconds: 0.5
+  parameterSeThreshold: 5
+--- !u!4 &1359337797
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359337795}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1363046499
 GameObject:
   m_ObjectHideFlags: 0
@@ -3392,3 +3441,4 @@ SceneRoots:
   - {fileID: 479046834}
   - {fileID: 1363046500}
   - {fileID: 106920527}
+  - {fileID: 1359337797}

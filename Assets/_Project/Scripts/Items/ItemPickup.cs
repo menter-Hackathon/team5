@@ -1,3 +1,4 @@
+using Team5.Audio;
 using Team5.Core;
 using Team5.Data;
 using Team5.Player;
@@ -25,6 +26,7 @@ namespace Team5.Items
             else Debug.LogWarning($"GameSceneContext か Inventory がないので {item.displayName} を持ち物に入れられません。", this);
             if (WorldFx.Instance != null) WorldFx.Instance.Pickup(transform.position, item);
             if (by != null && by.TryGetComponent(out PlayerAnimator animator)) animator.PlayPickup();
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Pickup);
             Destroy(gameObject);
         }
     }
