@@ -16,6 +16,6 @@ MonoBehaviour:
   displayName: "\u6599\u7406\u4EBA\u306E\u30A8\u30D7\u30ED\u30F3"
   item: {fileID: 11400000, guid: b71fbd0e48bad6a49a07a61693453b53, type: 2}
   stage: 1
-  prefab: {fileID: 0}
+  prefab: {fileID: 7748170674123070117, guid: bcab05078cad74907b357082ff7b5944, type: 3}
   attachPoint: Body
   individualityReward: 10
