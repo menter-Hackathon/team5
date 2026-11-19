@@ -15,11 +15,18 @@ namespace Team5.UI
         [SerializeField] private InventoryRowView rowTemplate; // 非アクティブにしておく見本の行
         [SerializeField] private GameObject emptyLabel;        // 何も持っていないとき
 
+        [Header("タブ（持ち物 / 着替え）")]
+        [SerializeField] private GameObject outfitsPanel;      // 着替えタブの窓（OutfitView）
+        [SerializeField] private Button[] itemsTabs;           // 各窓の「持ち物」タブ
+        [SerializeField] private Button[] outfitsTabs;         // 各窓の「着替え」タブ
+
         private readonly List<InventoryRowView> rows = new List<InventoryRowView>();
         private Inventory inventory;
         private PlayerInputReader input;
+        private PlayerMover mover;
+        private PlayerInteractor interactor;
 
-        public bool IsOpen => panel.activeSelf;
+        public bool IsOpen => panel.activeSelf || (outfitsPanel != null && outfitsPanel.activeSelf);
 
         private void Start()
         {
@@ -30,11 +37,19 @@ namespace Team5.UI
                 return;
             }
             inventory = context.Inventory;
-            if (context.Player != null) input = context.Player.GetComponent<PlayerInputReader>();
+            if (context.Player != null)
+            {
+                input = context.Player.GetComponent<PlayerInputReader>();
+                mover = context.Player.GetComponent<PlayerMover>();
+                interactor = context.Player.GetComponent<PlayerInteractor>();
+            }
 
             inventory.OnChanged += Refresh;
             if (input != null) input.OnInventory += Toggle;
+            foreach (var tab in itemsTabs) tab.onClick.AddListener(() => ShowTab(false));
+            foreach (var tab in outfitsTabs) tab.onClick.AddListener(() => ShowTab(true));
             panel.SetActive(false);
+            if (outfitsPanel != null) outfitsPanel.SetActive(false);
         }
 
         private void OnDestroy()
@@ -45,13 +60,38 @@ namespace Team5.UI
 
         public void Toggle()
         {
-            panel.SetActive(!panel.activeSelf);
-            if (panel.activeSelf) Refresh();
+            if (IsOpen) Close();
+            else Open();
+        }
+
+        // 開いている間はプレイヤーを止め、拾う・話すをしない（ゲームの時間は止めない）
+        public void Open()
+        {
+            if (IsOpen || (mover != null && !mover.CanMove)) return; // クラフト中・お題の長押し中などは開かない
+            if (mover != null) mover.CanMove = false;
+            if (interactor != null) interactor.enabled = false;
+            ShowTab(false);
+        }
+
+        public void Close()
+        {
+            if (!IsOpen) return;
+            panel.SetActive(false);
+            if (outfitsPanel != null) outfitsPanel.SetActive(false);
+            if (mover != null) mover.CanMove = true;
+            if (interactor != null) interactor.enabled = true;
+        }
+
+        private void ShowTab(bool outfits)
+        {
+            panel.SetActive(!outfits);
+            if (outfitsPanel != null) outfitsPanel.SetActive(outfits);
+            if (!outfits) Refresh();
         }
 
         private void Refresh()
         {
-            if (!IsOpen) return;
+            if (!panel.activeSelf) return;
 
             int index = 0;
             foreach (var pair in inventory.All)
