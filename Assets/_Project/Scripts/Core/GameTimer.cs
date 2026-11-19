@@ -1,10 +1,9 @@
 using System;
 using UnityEngine;
 
-#pragma warning disable CS0067 // 雛形のため、まだ呼ばれないイベントの警告を止める（実装したら消す）
-
 namespace Team5.Core
 {
+    // 制限時間。秒数は GameBalance.timeLimitSeconds から渡される
     public class GameTimer : MonoBehaviour
     {
         public float Remaining { get; private set; }
@@ -15,12 +14,32 @@ namespace Team5.Core
 
         public void StartTimer(float seconds)
         {
-            Debug.Log("TODO: GameTimer.StartTimer");
+            Remaining = seconds;
+            Elapsed = 0f;
+            IsRunning = true;
         }
 
         public void Stop()
         {
-            Debug.Log("TODO: GameTimer.Stop");
+            IsRunning = false;
+        }
+
+        // 一時停止中は Time.timeScale = 0 なので自動で止まる
+        private void Update()
+        {
+            if (!IsRunning) return;
+
+            float delta = Mathf.Min(Time.deltaTime, Remaining);
+            Remaining -= delta;
+            Elapsed += delta;
+            OnTick?.Invoke(Remaining);
+
+            if (Remaining <= 0f)
+            {
+                Remaining = 0f;
+                IsRunning = false;
+                OnTimeUp?.Invoke();
+            }
         }
     }
 }

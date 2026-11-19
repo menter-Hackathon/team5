@@ -244,6 +244,8 @@ public class TaskDefinition : ScriptableObject
     public float peaceReward = 10f;          // 完了で平和度 +
     public float individualityCost = 10f;    // 完了で個性 -
     public float failPeacePenalty = 15f;     // 失敗で平和度 -
+    public ItemDefinition rewardItem;        // こなすともらえる素材（なければ空）
+    public int rewardCount = 1;
 }
 
 public enum ItemCategory { Material, Food, Outfit, Goal, Misc }

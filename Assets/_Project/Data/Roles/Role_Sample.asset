@@ -16,8 +16,12 @@ MonoBehaviour:
   displayName: "\u30B5\u30F3\u30D7\u30EB\u8077\u4EBA"
   imposedRoleName: "\u52C7\u8005"
   imposedIntro: 
-  roleColor: {r: 1, g: 1, b: 1, a: 1}
-  imposedTasks: []
-  recipes: []
-  goalItem: {fileID: 0}
+  roleColor: {r: 0.949, g: 0.639, b: 0.227, a: 1}
+  imposedTasks:
+  - {fileID: 11400000, guid: 592ad63bbbe544c5594b765515ad07d0, type: 2}
+  - {fileID: 11400000, guid: 0a07315dc32e64b2991d0b8a85ab95a3, type: 2}
+  - {fileID: 11400000, guid: 1ff7e9160050746fb93b44374920952d, type: 2}
+  recipes:
+  - {fileID: 11400000, guid: 54ba6fb6c5889459486293e7d111d349, type: 2}
+  goalItem: {fileID: 11400000, guid: 79a6662b0bd8040a581f626eeca116fd, type: 2}
   outfits: []
