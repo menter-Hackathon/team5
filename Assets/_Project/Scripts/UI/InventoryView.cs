@@ -45,7 +45,11 @@ namespace Team5.UI
             }
 
             inventory.OnChanged += Refresh;
-            if (input != null) input.OnInventory += Toggle;
+            if (input != null)
+            {
+                input.OnInventory += Toggle;
+                input.OnOutfit += ToggleOutfits;
+            }
             foreach (var tab in itemsTabs) tab.onClick.AddListener(() => ShowTab(false));
             foreach (var tab in outfitsTabs) tab.onClick.AddListener(() => ShowTab(true));
             panel.SetActive(false);
@@ -55,22 +59,36 @@ namespace Team5.UI
         private void OnDestroy()
         {
             if (inventory != null) inventory.OnChanged -= Refresh;
-            if (input != null) input.OnInventory -= Toggle;
+            if (input != null)
+            {
+                input.OnInventory -= Toggle;
+                input.OnOutfit -= ToggleOutfits;
+            }
         }
 
+        // Tab：持ち物タブで開く／閉じる
         public void Toggle()
         {
             if (IsOpen) Close();
-            else Open();
+            else Open(false);
+        }
+
+        // C：着替えタブで開く。着替えタブなら閉じ、持ち物タブなら着替えタブに切り替える
+        public void ToggleOutfits()
+        {
+            if (outfitsPanel == null) return;
+            if (!IsOpen) Open(true);
+            else if (outfitsPanel.activeSelf) Close();
+            else ShowTab(true);
         }
 
         // 開いている間はプレイヤーを止め、拾う・話すをしない（ゲームの時間は止めない）
-        public void Open()
+        public void Open(bool outfits)
         {
             if (IsOpen || (mover != null && !mover.CanMove)) return; // クラフト中・お題の長押し中などは開かない
             if (mover != null) mover.CanMove = false;
             if (interactor != null) interactor.enabled = false;
-            ShowTab(false);
+            ShowTab(outfits);
         }
 
         public void Close()

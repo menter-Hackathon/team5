@@ -133,6 +133,16 @@ namespace Team5.Input
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""Outfit"",
+                    ""type"": ""Button"",
+                    ""id"": ""1b3be9d3-e21b-4184-91e8-c8c3297c9988"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -322,6 +332,28 @@ namespace Team5.Input
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a3a52f58-badf-4cb4-a003-d7e99e2ab7e3"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Outfit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""92079897-7d43-4e73-8ab4-2d6710172031"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Outfit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -334,6 +366,7 @@ namespace Team5.Input
             m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
             m_Player_Inventory = m_Player.FindAction("Inventory", throwIfNotFound: true);
             m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
+            m_Player_Outfit = m_Player.FindAction("Outfit", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -418,6 +451,7 @@ namespace Team5.Input
         private readonly InputAction m_Player_Interact;
         private readonly InputAction m_Player_Inventory;
         private readonly InputAction m_Player_Pause;
+        private readonly InputAction m_Player_Outfit;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -445,6 +479,10 @@ namespace Team5.Input
             /// Provides access to the underlying input action "Player/Pause".
             /// </summary>
             public InputAction @Pause => m_Wrapper.m_Player_Pause;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/Outfit".
+            /// </summary>
+            public InputAction @Outfit => m_Wrapper.m_Player_Outfit;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -483,6 +521,9 @@ namespace Team5.Input
                 @Pause.started += instance.OnPause;
                 @Pause.performed += instance.OnPause;
                 @Pause.canceled += instance.OnPause;
+                @Outfit.started += instance.OnOutfit;
+                @Outfit.performed += instance.OnOutfit;
+                @Outfit.canceled += instance.OnOutfit;
             }
 
             /// <summary>
@@ -506,6 +547,9 @@ namespace Team5.Input
                 @Pause.started -= instance.OnPause;
                 @Pause.performed -= instance.OnPause;
                 @Pause.canceled -= instance.OnPause;
+                @Outfit.started -= instance.OnOutfit;
+                @Outfit.performed -= instance.OnOutfit;
+                @Outfit.canceled -= instance.OnOutfit;
             }
 
             /// <summary>
@@ -574,6 +618,13 @@ namespace Team5.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnPause(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Outfit" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnOutfit(InputAction.CallbackContext context);
         }
     }
 }

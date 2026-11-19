@@ -10,7 +10,7 @@ namespace Team5.UI
     {
         public enum State { NotFound, Locked, CanWear, Wearing }
 
-        [SerializeField] private GameObject selectedFrame; // 着ている服の枠
+        [SerializeField] private GameObject selectedFrame; // 選んでいるカードの枠（A/D で選ぶ）
         [SerializeField] private Text stageLabel;
         [SerializeField] private Image icon;
         [SerializeField] private Text iconLabel;            // アイコンがないとき（見つけていなければ「？」）
@@ -45,7 +45,6 @@ namespace Team5.UI
             stageLabel.text = $"段階 {outfit.stage}";
             nameLabel.text = found ? outfit.displayName : $"{outfit.displayName} ？";
             nameLabel.color = found ? textColor : grayColor;
-            selectedFrame.SetActive(state == State.Wearing);
 
             switch (state)
             {
@@ -68,6 +67,8 @@ namespace Team5.UI
             }
             noteLabel.color = state == State.NotFound || state == State.Locked ? grayColor : textColor;
         }
+
+        public void SetSelected(bool selected) => selectedFrame.SetActive(selected);
 
         private void SetButton(Sprite sprite, string label, bool interactable)
         {
