@@ -400,8 +400,9 @@ GameObject:
   - component: {fileID: 8895325163602742060}
   - component: {fileID: 2516130791503694754}
   - component: {fileID: 1367122185445615651}
-  - component: {fileID: 3402031383133561829}
   - component: {fileID: 6692251396605911618}
+  - component: {fileID: 6545457030409561562}
+  - component: {fileID: 5747701089290280057}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -528,20 +529,6 @@ MonoBehaviour:
   interactor: {fileID: 8895325163602742060}
   root: {fileID: 5907720449827134543}
   fill: {fileID: 3755823753765245876}
---- !u!114 &3402031383133561829
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5182871711497399844}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43934fe427f528c43a587b67f6fe2d5a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 5320321374606166500}
-  moveThreshold: 0.1
 --- !u!114 &6692251396605911618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -557,6 +544,35 @@ MonoBehaviour:
   attachBody: {fileID: 5669430781763533415}
   attachHead: {fileID: 1710367809485217767}
   attachHand: {fileID: 8784254795365390286}
+--- !u!114 &6545457030409561562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5182871711497399844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd1d09562a3b843ffa2e64bf51d2e966, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  moveThreshold: 0.1
+  walkSpeedForAnim: 4
+--- !u!114 &5747701089290280057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5182871711497399844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c39355049a01547a9ba2828aaf4e312b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  changeThreshold: 5
+  particleMaterial: {fileID: 0}
 --- !u!1 &5907720449827134543
 GameObject:
   m_ObjectHideFlags: 0
@@ -749,10 +765,5 @@ PrefabInstance:
 --- !u!4 &2248906786481132446 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7e8b3a07aed61a242b6bdc232707b7f2, type: 3}
-  m_PrefabInstance: {fileID: 1783145849590723701}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &5320321374606166500 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 7e8b3a07aed61a242b6bdc232707b7f2, type: 3}
   m_PrefabInstance: {fileID: 1783145849590723701}
   m_PrefabAsset: {fileID: 0}

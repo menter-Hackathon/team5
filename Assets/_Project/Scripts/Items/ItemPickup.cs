@@ -24,6 +24,7 @@ namespace Team5.Items
             if (context != null && context.Inventory != null) context.Inventory.Add(item, count);
             else Debug.LogWarning($"GameSceneContext か Inventory がないので {item.displayName} を持ち物に入れられません。", this);
             if (WorldFx.Instance != null) WorldFx.Instance.Pickup(transform.position, item);
+            if (by != null && by.TryGetComponent(out PlayerAnimator animator)) animator.PlayPickup();
             Destroy(gameObject);
         }
     }
