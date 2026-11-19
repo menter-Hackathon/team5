@@ -54,6 +54,8 @@ namespace Team5.UI
             bool clear = result == GameResult.Clear;
             labelText.text = clear ? "クリア" : "ゲームオーバー";
 
+            ConfigureTextLayout();
+
             switch (result)
             {
                 case GameResult.Clear:
@@ -115,6 +117,12 @@ namespace Team5.UI
         private void SetNotice(string stamp, string chiefLine)
         {
             labelText.text = stamp;
+            hint.text += "\n村長「" + chiefLine + "」";
+            hint.color = Ink;
+        }
+
+        private void ConfigureTextLayout()
+        {
             heading.resizeTextForBestFit = true;
             heading.resizeTextMinSize = 28;
             heading.resizeTextMaxSize = 46;
@@ -124,12 +132,10 @@ namespace Team5.UI
             line.resizeTextMaxSize = 25;
             line.rectTransform.anchoredPosition = new Vector2(930, -325);
             line.rectTransform.sizeDelta = new Vector2(900, 90);
-            hint.text = hint.text + "\n村長「" + chiefLine + "」";
             hint.fontSize = 22;
             hint.resizeTextForBestFit = true;
             hint.resizeTextMinSize = 18;
             hint.resizeTextMaxSize = 22;
-            hint.color = Ink;
             hint.rectTransform.sizeDelta = new Vector2(880, 80);
         }
 
