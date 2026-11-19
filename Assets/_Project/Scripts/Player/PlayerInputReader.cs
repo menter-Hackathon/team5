@@ -16,6 +16,9 @@ namespace Team5.Player
         public event Action OnOutfit; // C（ゲームパッド West）：持ち物の着替えタブ
         public event Action OnPause;
 
+        // 説明のカードを出している間など、ゲームの操作を一時的に止める（TutorialView が使う）
+        public static bool GuideBlocking { get; set; }
+
         private PlayerControls controls;
 
         private void Awake()
@@ -56,11 +59,12 @@ namespace Team5.Player
         // 一時停止中でも解除できるように、Pause は Result のときだけ止める
         private void HandlePause(InputAction.CallbackContext context)
         {
-            if (CurrentState() != GameState.Result) OnPause?.Invoke();
+            if (CurrentState() != GameState.Result && !GuideBlocking) OnPause?.Invoke();
         }
 
         private static bool IsInputBlocked()
         {
+            if (GuideBlocking) return true;
             var state = CurrentState();
             return state == GameState.Paused || state == GameState.Result;
         }

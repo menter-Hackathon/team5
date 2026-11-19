@@ -114,6 +114,7 @@ namespace Team5.Player
         {
             Puff(Chest, new Color(1f, 1f, 1f, 0.8f), 30);
             Sparkle(Chest, roleColor, 24);
+            if (WorldFx.Instance != null && outfit != null) WorldFx.Instance.ShowText(Head, $"{outfit.displayName}を着た！", roleColor, 2.2f, 60);
         }
 
         private void HandleEnding(GameResult result)

@@ -236,6 +236,11 @@ MonoBehaviour:
   onEntryRequested:
     m_PersistentCalls:
       m_Calls: []
+  roles:
+  - {fileID: 11400000, guid: a528406cb994c9b4698fd96bd8e8daee, type: 2}
+  - {fileID: 11400000, guid: ae54a5602fd5145c2a0f1ea4da719e5a, type: 2}
+  - {fileID: 11400000, guid: 015fff8d0ba594b81b2861704fd7745c, type: 2}
+  - {fileID: 11400000, guid: c3ae285eb352940728c09ad285dba278, type: 2}
 --- !u!114 &106920524
 MonoBehaviour:
   m_ObjectHideFlags: 0
