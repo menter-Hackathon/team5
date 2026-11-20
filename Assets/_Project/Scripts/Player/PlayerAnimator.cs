@@ -34,7 +34,7 @@ namespace Team5.Player
         private enum OneShot { None, Pickup, Caught, Equip, Celebrate, Slump, Give, Bow }
 
         // お題の動作の種類。お題の ID か、なければ場所で決める（同じ場所に新しいお題が増えても動きが付く）
-        private enum Act { None, Swing, Eat, Hammer, Plow, Sweep, Generic }
+        private enum Act { None, Swing, Eat, Hammer, Plow, Sweep, Generic, Write, Tune, Perform }
 
         private static Act ActOf(string taskId, string spotId)
         {
@@ -68,7 +68,22 @@ namespace Team5.Player
                 case Act.Eat: u = Wave(4.5f); break;
                 case Act.Hammer: u = Mathf.Pow(Wave(4f), 0.5f); break;
                 case Act.Plow: u = Mathf.Pow(Wave(3.6f), 0.6f); break;
+                case Act.Write: u = Wave(2f); side = Mathf.Sin(t * 14f); break;   // 行を進めながら細かく書く
+                case Act.Tune: u = Wave(1.5f); side = Mathf.Sin(t * 5f); break;
+                case Act.Perform: u = Wave(8f); side = Mathf.Sin(t * 4f); break;   // かき鳴らすリズム
                 default: u = Wave(4f); break;
+            }
+        }
+
+        // 作業台での動き。特別な動きがあるレシピだけ（ほかは鍋をかき混ぜる）
+        private static Act CraftActOf(string recipeId)
+        {
+            switch (recipeId)
+            {
+                case "sheet_music": return Act.Write;       // 楽譜を書く
+                case "performance_setup": return Act.Tune;  // 演奏準備
+                case "original_song": return Act.Perform;   // 初めての曲で演奏
+                default: return Act.None;
             }
         }
 
@@ -81,6 +96,9 @@ namespace Team5.Player
                 case Act.Hammer: return PlayerActionProps.Prop.Hammer;
                 case Act.Plow: return PlayerActionProps.Prop.Hoe;
                 case Act.Sweep: return PlayerActionProps.Prop.Broom;
+                case Act.Write: return PlayerActionProps.Prop.Pencil;
+                case Act.Tune: return PlayerActionProps.Prop.Tuner;
+                case Act.Perform: return PlayerActionProps.Prop.Guitar;
                 default: return PlayerActionProps.Prop.None;
             }
         }
@@ -97,6 +115,8 @@ namespace Team5.Player
         private float oneShotTime;
         private float oneShotLength;
         private bool acting;
+        private bool craftActing;     // 作業台で特別な動きのレシピを作っている
+        private string craftRecipeId;
         private Act act;
         private float actTime;        // 動作を始めてからの秒数（振りのリズムの起点）
         private float actWeight;      // 動作の姿勢にどれだけ寄せるか（0〜1、なめらかに切り替える）
@@ -224,6 +244,35 @@ namespace Team5.Player
                     SetAct(headTurn, 0.3f * s); SetAct(headNod, -0.3f);
                     break;
                 }
+                case Act.Write:
+                {
+                    // 前かがみで、左手で紙を押さえ、右手の鉛筆で細かく書き込む
+                    float scribble = Mathf.Sin(t * 14f);
+                    SetAct(rightArmDU, -0.3f); SetAct(rightArmFB, 0.9f); SetAct(rightForearm, 0.1f + 0.12f * scribble);
+                    SetAct(leftArmDU, -0.35f); SetAct(leftArmFB, 0.8f); SetAct(leftForearm, 0.3f);
+                    SetAct(spineFB, 0.35f); SetAct(chestFB, 0.15f);
+                    SetAct(headNod, -0.4f); SetAct(headTurn, 0.08f * Mathf.Sin(t * 2f));
+                    break;
+                }
+                case Act.Tune:
+                {
+                    // 胸の前で機材を持ち、首をかしげながらつまみを調整する
+                    float twist = Mathf.Sin(t * 5f);
+                    SetAct(leftArmDU, -0.2f); SetAct(leftArmFB, 0.95f); SetAct(leftForearm, 0f);
+                    SetAct(rightArmDU, -0.15f + 0.05f * twist); SetAct(rightArmFB, 0.95f); SetAct(rightForearm, 0.05f);
+                    SetAct(spineFB, 0.2f); SetAct(headNod, -0.3f); SetAct(headTurn, 0.15f * Mathf.Sin(t * 1.5f));
+                    break;
+                }
+                case Act.Perform:
+                {
+                    // ギターを抱え、左手でネックを押さえ、右手でかき鳴らす。頭でリズムを取る
+                    float strum = Mathf.Sin(t * 16f);
+                    SetAct(leftArmDU, -0.05f); SetAct(leftArmFB, 0.9f); SetAct(leftForearm, 0.75f);
+                    SetAct(rightArmDU, -0.45f + 0.12f * strum); SetAct(rightArmFB, 0.55f); SetAct(rightForearm, 0.2f);
+                    SetAct(spineFB, -0.05f); SetAct(chestTwist, 0.1f * Mathf.Sin(t * 4f));
+                    SetAct(headNod, 0.15f * Mathf.Sin(t * 8f));
+                    break;
+                }
                 case Act.Generic:
                 {
                     float u = Wave(4f);
@@ -303,6 +352,7 @@ namespace Team5.Player
                 s.OnActing += value => HandleActing(s, value);
             }
             if (context != null && context.Tasks != null) context.Tasks.OnTaskCompleted += HandleTaskCompleted;
+            if (context != null && context.Crafting != null) context.Crafting.OnCraftProgress += HandleCraftProgress;
             props = GetComponent<PlayerActionProps>();
             if (props == null) props = gameObject.AddComponent<PlayerActionProps>();
             props.Setup(animator);
@@ -314,6 +364,7 @@ namespace Team5.Player
             poseHandler?.Dispose();
             if (context != null && context.Surveillance != null) context.Surveillance.OnCaught -= HandleCaught;
             if (context != null && context.Tasks != null) context.Tasks.OnTaskCompleted -= HandleTaskCompleted;
+            if (context != null && context.Crafting != null) context.Crafting.OnCraftProgress -= HandleCraftProgress;
         }
 
         // ItemPickup から呼ぶ
@@ -356,6 +407,12 @@ namespace Team5.Player
             }
             if (props != null) props.Show(value && !ended ? PropOf(act) : PlayerActionProps.Prop.None);
             SetBool(ActingId, value);
+        }
+
+        // 今作っているレシピを覚える（StartCraft で最初に呼ばれる）
+        private void HandleCraftProgress(Team5.Data.RecipeDefinition recipe, float progress)
+        {
+            craftRecipeId = recipe != null ? recipe.recipeId : null;
         }
 
         // 渡す・話すは一瞬で終わるので、終わったときに一度だけ動く
@@ -403,6 +460,15 @@ namespace Team5.Player
             {
                 crafting = nowCrafting;
                 SetBool(CraftingId, crafting);
+                // 特別な動きのあるレシピ（楽譜・演奏準備・演奏）は、お題と同じしくみで動きと道具を出す
+                Act craftAct = crafting && !acting ? CraftActOf(craftRecipeId) : Act.None;
+                craftActing = craftAct != Act.None;
+                if (craftActing)
+                {
+                    act = craftAct;
+                    actTime = Time.time;
+                }
+                if (!acting && props != null) props.Show(craftActing && !ended ? PropOf(act) : PlayerActionProps.Prop.None);
             }
         }
 
@@ -420,8 +486,9 @@ namespace Team5.Player
             bool still = animator != null && animator.speed == 0f;
             if (still && !ended && poseHandler == null) scale.y += 0.015f * Mathf.Sin(t * 2.2f); // 待機：呼吸（Humanoid でないとき）
 
-            actWeight = Mathf.MoveTowards(actWeight, acting && !ended ? 1f : 0f, Time.deltaTime / 0.15f);
-            if (acting && !ended)
+            bool doing = acting || craftActing;
+            actWeight = Mathf.MoveTowards(actWeight, doing && !ended ? 1f : 0f, Time.deltaTime / 0.15f);
+            if (doing && !ended)
             {
                 float at = t - actTime;
                 if (poseHandler == null)
@@ -442,6 +509,9 @@ namespace Team5.Player
                         case Act.Plow: { float u = W(3.6f, 0.6f); euler.x += 14f * u; offset.y -= 0.08f * u; break; }
                         case Act.Sweep: euler.y += 12f * Mathf.Sin(at * 3.2f); euler.x += 6f; break;
                         case Act.Eat: euler.x += 8f; offset.y += 0.015f * Mathf.Sin(at * 9f); break;
+                        case Act.Write: euler.x += 12f; break;
+                        case Act.Tune: euler.x += 6f; euler.z += 3f * Mathf.Sin(at * 1.5f); break;
+                        case Act.Perform: offset.y += 0.025f * Mathf.Abs(Mathf.Sin(at * 8f)); euler.z += 4f * Mathf.Sin(at * 4f); break;
                         default: euler.x += 6f * W(4f, 1f); break;
                     }
                 }
@@ -498,7 +568,7 @@ namespace Team5.Player
             model.localPosition = basePosition + offset;
             model.localRotation = baseRotation * Quaternion.Euler(euler);
             model.localScale = Vector3.Scale(baseScale, scale);
-            if (props != null && acting) // 姿勢が決まったあとで道具を動かす
+            if (props != null && (acting || craftActing)) // 姿勢が決まったあとで道具を動かす
             {
                 ActPhase(Time.time - actTime, out float u, out float side);
                 props.Place(u, side);
