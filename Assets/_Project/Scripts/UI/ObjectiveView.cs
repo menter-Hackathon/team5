@@ -144,7 +144,7 @@ namespace Team5.UI
             {
                 var station = FindAnyObjectByType<CraftStation>();
                 target = station != null ? station.transform : null;
-                text = $"材料がそろった！ {AreaOf(target)}の作業台で\n「{recipe.displayName}」を作ろう（だれも見ていないときに）";
+                text = $"材料がそろった！ {AreaOf(target)}の作業台で\n「{recipe.displayName}」を作ろう\n（だれも見ていないときに）";
                 return;
             }
             foreach (var input in recipe.inputs)
@@ -252,7 +252,7 @@ namespace Team5.UI
             panel.anchorMin = panel.anchorMax = new Vector2(1f, 1f);
             panel.pivot = new Vector2(1f, 1f);
             panel.anchoredPosition = new Vector2(-24f, -470f);
-            panel.sizeDelta = new Vector2(500f, 480f);
+            panel.sizeDelta = new Vector2(500f, 510f);
             var image = go.GetComponent<Image>();
             image.sprite = panelSprite;
             image.type = panelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
@@ -263,8 +263,8 @@ namespace Team5.UI
             var title = MakeText(panel, "Title", 27, new Vector2(22f, -54f), new Vector2(-22f, -14f));
             title.text = $"目標：{goalName}を完成させる";
             title.color = new Color(1f, 0.82f, 0.24f);
-            next = MakeText(panel, "Next", 23, new Vector2(22f, -150f), new Vector2(-22f, -58f));
-            body = MakeText(panel, "Body", 23, new Vector2(22f, -470f), new Vector2(-22f, -158f));
+            next = MakeText(panel, "Next", 23, new Vector2(22f, -168f), new Vector2(-22f, -58f));
+            body = MakeText(panel, "Body", 23, new Vector2(22f, -500f), new Vector2(-22f, -176f));
             body.lineSpacing = 1.0f;
             next.color = new Color(1f, 0.72f, 0.86f);
         }
