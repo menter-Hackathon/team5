@@ -27,6 +27,11 @@ namespace Team5.UI
 
         [Header("結果の絵")]
         [SerializeField] private Sprite clearBackground;
+        [Header("クリア専用の通知書と3Dキャラクター")]
+        [SerializeField] private Sprite clearNoticeBackground;
+        [SerializeField] private Sprite clearWoodButton;
+        [SerializeField] private GameObject clearPlayerPrefab;
+        [SerializeField] private Shader clearPortraitShader;
         [SerializeField] private Sprite clearPicture;
         [SerializeField] private Sprite peacePicture;
         [SerializeField] private Sprite fadedPicture;
@@ -118,6 +123,12 @@ namespace Team5.UI
             extra.text = result == GameResult.None ? "" : clear
                 ? $"かかった時間  {seconds / 60}:{seconds % 60:00}"
                 : $"{wanted}への進み具合  {Mathf.RoundToInt(summary.roleProgress)} / 100";
+            if (clear && clearNoticeBackground != null && clearPlayerPrefab != null)
+            {
+                gameObject.AddComponent<ClearResultPresentation>().Show(clearNoticeBackground,
+                    clearWoodButton, clearPlayerPrefab, role, summary, balance, heading.font, clearPortraitShader);
+                return;
+            }
             PlayEntrance(clear);
         }
 

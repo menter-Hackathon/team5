@@ -2018,6 +2018,10 @@ MonoBehaviour:
   peaceFill: {fileID: 1528505466}
   tasksValue: {fileID: 1959176053}
   caughtValue: {fileID: 738221041}
+  clearNoticeBackground: {fileID: 21300000, guid: 2781d526208d4da6bb2178f0414dd54d, type: 3}
+  clearPortraitShader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  clearWoodButton: {fileID: 21300000, guid: af66bdcea3264b54a74de35ee8c3172e, type: 3}
+  clearPlayerPrefab: {fileID: 5182871711497399844, guid: 205978f2db1e64f919d59b48d896aa15, type: 3}
   clearBackground: {fileID: 21300000, guid: 6748e3404faa46c2b23f9c764109cc3b, type: 3}
   clearPicture: {fileID: 21300000, guid: d0cafbc8d6d894e4eaf4af9ed96ff2b1, type: 3}
   peacePicture: {fileID: 21300000, guid: 36f2fbab4dda8a24c88f1155fcc6bc20, type: 3}
