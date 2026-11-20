@@ -26,6 +26,12 @@ namespace Team5.UI
         [SerializeField] private Text caughtValue;
 
         [Header("結果の絵")]
+        [SerializeField] private Sprite clearBackground;
+        [Header("クリア専用の通知書と3Dキャラクター")]
+        [SerializeField] private Sprite clearNoticeBackground;
+        [SerializeField] private Sprite clearWoodButton;
+        [SerializeField] private GameObject clearPlayerPrefab;
+        [SerializeField] private Shader clearPortraitShader;
         [SerializeField] private Sprite clearPicture;
         [SerializeField] private Sprite peacePicture;
         [SerializeField] private Sprite fadedPicture;
@@ -45,49 +51,114 @@ namespace Team5.UI
         private void Start()
         {
             var manager = GameManager.Instance;
-            var result = manager != null ? manager.LastResult : GameResult.Clear;
+            var result = manager != null ? manager.LastResult : GameResult.None;
             var summary = manager != null ? manager.LastSummary : default;
             var role = manager != null && manager.CurrentRole != null ? manager.CurrentRole : fallbackRole;
-            string wanted = role != null ? role.displayName : "なりたい自分";
-            string imposed = role != null ? role.imposedRoleName : "勇者";
+            string wanted = role != null && !string.IsNullOrWhiteSpace(role.displayName) ? role.displayName : "なりたい自分";
+            string imposed = role != null && !string.IsNullOrWhiteSpace(role.imposedRoleName) ? role.imposedRoleName : "勇者";
 
             bool clear = result == GameResult.Clear;
-            labelText.text = clear ? "受理" : result == GameResult.GameOverPeace ? "追放" : result == GameResult.GameOverFaded ? "適合" : "現状維持";
+            labelText.text = clear ? "クリア" : "ゲームオーバー";
+
+            ConfigureTextLayout();
 
             switch (result)
             {
                 case GameResult.Clear:
-                    Set(role != null ? role.roleColor : Accent, clearPicture, Ink, Accent, Ink,
-                        $"{wanted}になれた！", $"届け出は受理されました。今日から、あなたは{wanted}です。", "言われたこともこなしつつ、自分の『好き』を守れた！");
+                    bool ramenChef = role != null && role.roleId == "ramen_chef";
+                    Set(new Color(0.98f, 0.93f, 0.81f), clearPicture, Ink, Accent, Ink,
+                        "これが、わたしらしさ。",
+                        $"{imposed}になるはずだった。\n" + (ramenChef
+                            ? "けれど、いま手にしているのは、自分で作った一杯だ。"
+                            : "けれど、いまここにいるのは、自分で選んだわたしだ。"),
+                        $"なりたかった自分　{wanted}");
+                    SetNotice("らしさ達成", ramenChef
+                        ? "……まあ、一杯くらいは、いただこうか。"
+                        : "……それが、お前の選んだ道か。");
                     break;
                 case GameResult.GameOverPeace:
-                    Set(Dark, peacePicture, Color.white, Warning, Color.white,
-                        "村の名簿から、外されました。", $"理由：{imposed}らしくない行いが目撃されたため。", "らしくない行動は、だれも見ていないときに。お題をこなすと平和度が戻るよ");
+                    Set(Fog, peacePicture, Ink, Warning, Color.white,
+                        "あなたらしさを、確認しました。",
+                        "あなたが何を望んでいるのか、村にもよく分かりました。\nその望みは、この村では認められていません。",
+                        "平和度が0になりました。");
+                    SetNotice("不適合", "好きにしてよいとは言ったが、そこまでとは言っておらんよ。");
+                    break;
+                case GameResult.GameOverTimeUp:
+                    Set(new Color(0.88f, 0.79f, 0.65f), timeUpPicture, Ink, Dark, Color.white,
+                        "明日も、あなたの役割が待っています。",
+                        "なりたかった自分のことは、また明日考えましょう。\n明日も、今日と同じ仕事が待っています。",
+                        "制限時間になりました。");
+                    SetNotice("本日終了", "夢は逃げんよ。明日もまず、村の仕事を頼むぞ。");
                     break;
                 case GameResult.GameOverFaded:
                     Set(Fog, fadedPicture, Ink, Stone, Color.white,
-                        $"おめでとう。あなたは立派な{imposed}です。", "もう、何も迷うことはありません。何も、感じません。", "お題ばかりだと色が消えちゃう。こっそりクラフトして個性を取り戻そう");
+                        "立派な村人になりました。",
+                        $"あなたは、期待されたとおりの{imposed}になりました。\nもう、自分が何になりたかったかで悩む必要はありません。",
+                        "個性が0になりました。");
+                    SetNotice("適応完了", "うむ。ようやく、お前らしくなったな。");
                     break;
                 default:
                     Set(Shadow, timeUpPicture, Color.white, Dark, Color.white,
-                        "日が沈みました。", $"明日も、あなたは{imposed}として生きます。これまでどおりに。", "素材を先に集めておくと、クラフトが早く終わるよ");
+                        "結果がまだありません", "タイトルからゲームを開始してください。", "");
+                    labelText.text = "未記録";
                     break;
             }
+
+            // 背景を白で描画し、単色用の色が画像に乗らないようにする。
+            // 未設定のシーンでは、従来の単色背景をそのまま使う。
+            background.sprite = clear ? clearBackground : null;
+            background.type = Image.Type.Simple;
+            if (background.sprite != null) background.color = Color.white;
 
             float individualityMax = balance != null ? balance.individualityMax : 100f;
             float peaceMax = balance != null ? balance.peaceMax : 100f;
             individualityValue.text = $"{Mathf.RoundToInt(summary.individuality)}";
             peaceValue.text = $"{Mathf.RoundToInt(summary.peace)}";
-            SetWidth(individualityFill, summary.individuality / individualityMax);
-            SetWidth(peaceFill, summary.peace / peaceMax);
+            SetWidth(individualityFill, summary.individuality / Mathf.Max(1f, individualityMax));
+            SetWidth(peaceFill, summary.peace / Mathf.Max(1f, peaceMax));
             tasksValue.text = $"{summary.tasksCompleted} 回";
             caughtValue.text = $"{summary.timesCaught} 回";
 
             int seconds = Mathf.RoundToInt(summary.elapsedSeconds);
-            extra.text = clear
+            extra.text = result == GameResult.None ? "" : clear
                 ? $"かかった時間  {seconds / 60}:{seconds % 60:00}"
                 : $"{wanted}への進み具合  {Mathf.RoundToInt(summary.roleProgress)} / 100";
+            if (clear && clearNoticeBackground != null && clearPlayerPrefab != null)
+            {
+                gameObject.AddComponent<ClearResultPresentation>().Show(clearNoticeBackground,
+                    clearWoodButton, clearPlayerPrefab, role, summary, balance, heading.font, clearPortraitShader);
+                return;
+            }
             PlayEntrance(clear);
+        }
+
+        private void SetNotice(string stamp, string chiefLine)
+        {
+            labelText.text = stamp;
+            hint.text += "\n村長「" + chiefLine + "」";
+            hint.color = Ink;
+        }
+
+        private void ConfigureTextLayout()
+        {
+            heading.resizeTextForBestFit = true;
+            heading.resizeTextMinSize = 28;
+            heading.resizeTextMaxSize = 46;
+            line.fontSize = 25;
+            line.resizeTextForBestFit = true;
+            line.resizeTextMinSize = 20;
+            line.resizeTextMaxSize = 25;
+            line.rectTransform.anchoredPosition = new Vector2(930, -325);
+            line.rectTransform.sizeDelta = new Vector2(900, 90);
+            hint.fontSize = 22;
+            hint.resizeTextForBestFit = true;
+            hint.resizeTextMinSize = 18;
+            hint.resizeTextMaxSize = 22;
+            // hint は横に伸縮する子Text。sizeDeltaに幅を入れると親の幅に加算される。
+            if (hint.transform.parent is RectTransform hintPanel)
+                hintPanel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80f);
+            hint.rectTransform.offsetMin = new Vector2(24f, 8f);
+            hint.rectTransform.offsetMax = new Vector2(-24f, -8f);
         }
 
         // 絵 → ラベル → 見出し → 一言 → 数値 → ヒント → ボタン の順に出す
