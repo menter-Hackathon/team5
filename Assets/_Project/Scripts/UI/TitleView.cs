@@ -99,10 +99,25 @@ namespace Team5.UI
             if (button != null) es.SetSelectedGameObject(button.gameObject);
         }
 
+        // 職業カード：いま選んでいるカードを、枠と大きさではっきり見せる
+        private readonly System.Collections.Generic.List<(RectTransform card, GameObject frame, GameObject hint)> roleCards = new System.Collections.Generic.List<(RectTransform, GameObject, GameObject)>();
+
         private void Update()
         {
             // マウスでどこかを押して選択が外れても、矢印キーでまた選べるように
             var es = UnityEngine.EventSystems.EventSystem.current;
+            if (es != null && rolePanel != null && rolePanel.activeSelf)
+            {
+                var current = es.currentSelectedGameObject;
+                foreach (var (card, frame, hint) in roleCards)
+                {
+                    bool on = current == card.gameObject;
+                    float target = on ? 1.07f : 0.97f;
+                    card.localScale = Vector3.one * Mathf.MoveTowards(card.localScale.x, target, Time.unscaledDeltaTime * 1.2f);
+                    if (frame.activeSelf != on) frame.SetActive(on);
+                    if (hint.activeSelf != on) hint.SetActive(on);
+                }
+            }
             if (es == null || es.currentSelectedGameObject != null) return;
             var kb = UnityEngine.InputSystem.Keyboard.current;
             bool arrow = kb != null && (kb.upArrowKey.wasPressedThisFrame || kb.downArrowKey.wasPressedThisFrame || kb.leftArrowKey.wasPressedThisFrame || kb.rightArrowKey.wasPressedThisFrame || kb.wKey.wasPressedThisFrame || kb.sKey.wasPressedThisFrame);
@@ -172,6 +187,29 @@ namespace Team5.UI
                 string goal = role.goalItem != null ? role.goalItem.displayName : role.displayName;
                 var goalText = NewText(card, font, $"目標：{goal}", 26, new Color(1f, 0.82f, 0.24f));
                 Place(goalText.rectTransform, 0f, -360f, 50f);
+
+                // 選んでいるときだけ出す：ロールの色の太い枠と「Enter で決定」
+                var frame = NewRect("Frame", card);
+                frame.anchorMin = Vector2.zero; frame.anchorMax = Vector2.one;
+                frame.offsetMin = new Vector2(-8f, -8f); frame.offsetMax = new Vector2(8f, 8f);
+                var frameOutline = frame.gameObject.AddComponent<UnityEngine.UI.Outline>();
+                var frameImage = frame.gameObject.AddComponent<UnityEngine.UI.Image>();
+                frameImage.color = new Color(0f, 0f, 0f, 0f);
+                frameImage.raycastTarget = false;
+                frameOutline.effectColor = role.roleColor;
+                frameOutline.effectDistance = new Vector2(7f, -7f);
+                frameOutline.useGraphicAlpha = false;
+                frame.SetAsFirstSibling();
+                var glow = NewRect("Glow", frame);
+                glow.anchorMin = Vector2.zero; glow.anchorMax = Vector2.one; glow.offsetMin = glow.offsetMax = Vector2.zero;
+                var glowImage = glow.gameObject.AddComponent<UnityEngine.UI.Image>();
+                var c = role.roleColor; glowImage.color = new Color(c.r, c.g, c.b, 0.55f); glowImage.raycastTarget = false;
+                var hint = NewText(card, font, "▶ Enter で決定", 26, Color.white);
+                hint.rectTransform.anchorMin = hint.rectTransform.anchorMax = new Vector2(0.5f, 0f);
+                hint.rectTransform.sizeDelta = new Vector2(360f, 40f);
+                hint.rectTransform.anchoredPosition = new Vector2(0f, -34f);
+                frame.gameObject.SetActive(false); hint.gameObject.SetActive(false);
+                roleCards.Add((card, frame.gameObject, hint.gameObject));
             }
 
             var back = NewRect("Back", root);

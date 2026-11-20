@@ -7,6 +7,15 @@
 | M PLUS Rounded 1c（Bold / ExtraBold） | フォント | https://fonts.google.com/specimen/M+PLUS+Rounded+1c | SIL Open Font License 1.1 | 見出し・ボタン・お題・通知（`Art/Fonts/`） |
 | Noto Sans JP | フォント | https://fonts.google.com/noto/specimen/Noto+Sans+JP | SIL Open Font License 1.1（`Art/Fonts/OFL.txt`） | 説明・アイテム名などの本文（`Art/Fonts/`） |
 
+## 3D モデル・絵
+
+| 素材名 | 種類 | 入手先 | ライセンス | 使っている場所 |
+|---|---|---|---|---|
+| 村（建物・道・木・小物） | 3D モデル | チームメンバー（いろいろ）が Blender で制作 | チームのオリジナル | `Art/Environment/ENV_Village_iroiro.fbx` |
+| キャラクター・アイテム・衣装・小物の絵 | 画像 | チームメンバー（こまつな・いろいろ）が制作（一部 Gemini で生成） | チームのオリジナル | アイコン（`Art/UI/Items/`）、3D 化の元絵 |
+| アイテム・小物の 3D モデル | 3D モデル | 上の絵をもとに Meshy AI（https://www.meshy.ai ）の Image to 3D で生成 | Meshy の利用規約に従う（有料プランで生成、商用利用可） | `Art/Items/` `Art/Props/` |
+| 衣装（鶏白湯職人・司書・プロゲーマー） | 3D モデル | Unity の基本形状を組み合わせてチームで制作 | チームのオリジナル | `Prefabs/Outfits/` |
+
 ## 音（BGM・SE）
 
 下表の従来音源はチームで作ったオリジナルの音です（`tools/audio/gen_audio.py` で合成。外部の音源・サンプルは使っていません）。そのためクレジット表記は不要で、公開リポジトリに置いても規約の問題はありません。外部サイトの素材に差し替えたときは、この表の行をその素材の入手先とライセンスに書き換えてください。
