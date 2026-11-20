@@ -26,4 +26,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fda03561a289e4e33881a2f46a270918, type: 2}
   - {fileID: 11400000, guid: 2dca63724a54d4d86b9f8c5e7a8aaa16, type: 2}
   goalItem: {fileID: 11400000, guid: 3ba0486b070ef40e2ae69c2d0af1088a, type: 2}
-  outfits: []
+  outfits:
+  - {fileID: 11400000, guid: fe963809469444606b1e0420e2414f64, type: 2}
+  - {fileID: 11400000, guid: c397a8b8dce364091844d50d5f4cba37, type: 2}

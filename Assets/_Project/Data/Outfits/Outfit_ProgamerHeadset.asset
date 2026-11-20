@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0e8a372ece95754d83e719ccf39c019, type: 3}
+  m_Name: Outfit_ProgamerHeadset
+  m_EditorClassIdentifier: 
+  outfitId: progamer_headset
+  displayName: "\u30D8\u30C3\u30C9\u30BB\u30C3\u30C8"
+  item: {fileID: 11400000, guid: 4b6d8278c76ee44f7a82c003ff1ae39c, type: 2}
+  stage: 2
+  prefab: {fileID: 5586490229264236925, guid: 9dacacc00286e46e0b22247b0a7443e6, type: 3}
+  attachPoint: Head
+  individualityReward: 10
