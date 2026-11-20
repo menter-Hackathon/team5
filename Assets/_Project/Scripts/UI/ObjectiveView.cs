@@ -144,7 +144,7 @@ namespace Team5.UI
             {
                 var station = FindAnyObjectByType<CraftStation>();
                 target = station != null ? station.transform : null;
-                text = $"材料がそろった！ {AreaOf(target)}の作業台で「{recipe.displayName}」を作ろう（だれも見ていないときに）";
+                text = $"材料がそろった！ {AreaOf(target)}の作業台で\n「{recipe.displayName}」を作ろう（だれも見ていないときに）";
                 return;
             }
             foreach (var input in recipe.inputs)
@@ -165,7 +165,7 @@ namespace Team5.UI
                 if (pickup != null)
                 {
                     target = pickup.transform;
-                    text = $"{AreaOf(target)}で「{input.item.displayName}」を拾おう（見られていないときに）";
+                    text = $"{AreaOf(target)}で「{input.item.displayName}」を拾おう\n（見られていないときに）";
                     return;
                 }
                 foreach (var task in role.imposedTasks)
@@ -202,7 +202,7 @@ namespace Team5.UI
                 }
             }
             if (parts.Count == 0) return;
-            sb.Append("<size=19><color=#D9D2C5>服：</color>").Append(string.Join("　", parts)).Append("</size>\n");
+            sb.Append("<size=19><color=#D9D2C5>服：</color>").Append(string.Join("\n　　", parts)).Append("</size>\n");
         }
 
         private ItemPickup NearestPickup(ItemDefinition item)

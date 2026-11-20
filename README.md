@@ -1,10 +1,36 @@
-# team5（タイトル未定）
+# らしさの村
 
 「〇〇らしく」を求められる村で、言われたとおりに振る舞いながら、見られていない隙に「本当になりたい自分」へ少しずつ変わっていく3Dゲーム。
 
 > 人に押し付けられた「らしさ」ではなく、自分が思う「らしさ」を追い求めよう。
 
 メンターハッカソン チーム5
+
+## 遊ぶ
+
+- **ブラウザ版（Unity なしで遊べる）**：https://menter-hackathon.github.io/team5/ （PC の Chrome / Edge / Safari。最初の読み込みに数十秒）
+- **Unity で開く**：Unity 6000.0.85f2 でこのフォルダを開き、`Assets/_Project/Scenes/Title.unity` を開いて ▶
+- 操作：WASD / 矢印で移動、E で拾う・話す・作業台、E 長押しでお題の動作、C で着替え、Tab で持ち物、M で地図、Esc で一時停止。詳しくは [docs/how-to-play.md](docs/how-to-play.md)
+
+## 作品の概要
+
+村長に「勇者らしく」「農家の子らしく」などの「らしさ」を押し付けられる村が舞台です。昼のあいだ村長のお題をこなして村の平和度を保ちつつ、村人の視線（扇形の視界）が外れた隙に素材を集め、作業台で「本当になりたい自分」のアイテムを作り、服を着替えていきます。見つかれば平和度が下がり、お題ばかりこなすと個性が薄れていく。その間で揺れながら、なりたい自分（鶏白湯職人・バンドマン・司書・プロゲーマー）を完成させるとクリアです。
+
+## 使った技術
+
+| 分野 | 内容 | 主なコード |
+|---|---|---|
+| エンジン | Unity 6（6000.0.85f2）・URP・WebGL ビルド（GitHub Pages で公開） | `ProjectSettings/` |
+| 視線と監視 | NPC ごとの扇形の視界（距離・角度・遮蔽物のレイキャスト）、見られている／いないの切り替えで BGM と演出が変わる | `Scripts/NPC/VisionSensor.cs` `SurveillanceManager.cs` |
+| 「道から外れる」判定 | 村の道と広場のメッシュをエディタで 0.25m の格子に焼き、毎フレーム参照 | `Scripts/NPC/OffRoadWatcher.cs` |
+| NPC の巡回 | NavMesh（AI Navigation）で巡回点を回り、止まって見回す | `Scripts/NPC/NpcPatrol.cs` |
+| データ駆動のゲーム内容 | ロール・お題・アイテム・レシピ・衣装を ScriptableObject で定義。4 ロールを同じコードで動かす | `Scripts/Data/` `Data/` |
+| 初見向けの案内 | 時間を止める説明カード、次の行き先を計算して矢印と地図の★で示す、村人の名札と口ぐせ | `Scripts/UI/TutorialView.cs` `ObjectiveView.cs` `GuideArrowView.cs` |
+| 演出 | 屋根を消して建物の中を見せる、着替え・結果の通達・ハンコの演出、お題ごとの動きと道具 | `Scripts/Core/RoofHider.cs` `Scripts/UI/EndBannerView.cs` `Scripts/Player/PlayerAnimator.cs` |
+| 3D 素材 | 村は Blender で制作（いろいろ）。小物・アイテムはチームの絵から Meshy AI で 3D 化し、Blender で軽くして取り込み | `Art/Environment/` `Art/Items/` `Art/Props/` |
+| AI の使い方 | Claude Code・Codex でコードを書き、PlayMode テストでクリアまでの自動確認 | `docs/workflow.md` |
+
+素材のクレジットは [docs/credits.md](docs/credits.md) にまとめています。
 
 ## ドキュメント
 
