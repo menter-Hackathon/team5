@@ -16,6 +16,6 @@ MonoBehaviour:
   displayName: "\u653B\u7565\u30CE\u30FC\u30C8"
   description: "\u7814\u7A76\u3057\u305F\u4F5C\u6226\u3092\u307E\u3068\u3081\u305F\u30CE\u30FC\u30C8"
   category: 1
-  icon: {fileID: 0}
-  worldPrefab: {fileID: 0}
+  icon: {fileID: 21300000, guid: aaa0bf73943242ee8ea08a86dbfe81c3, type: 3}
+  worldPrefab: {fileID: 5617926573932260436, guid: 043480589601b46d182a3cad45005ffd, type: 3}
   suspiciousToCarry: 0
