@@ -116,6 +116,7 @@ namespace Team5.UI
                 sb.Append('\n');
                 step++;
             }
+            AppendOutfits(sb);
             body.text = sb.ToString().TrimEnd('\n');
 
             string nextText;
@@ -182,6 +183,28 @@ namespace Team5.UI
             text = $"「{recipe.displayName}」の材料をそろえよう";
         }
 
+        // 服：まだ持っていない服は、どこで拾えるかを出す（着るとなりたい姿に近づく）
+        private void AppendOutfits(StringBuilder sb)
+        {
+            if (role.outfits == null || role.outfits.Count == 0) return;
+            var outfits = FindAnyObjectByType<OutfitController>();
+            var parts = new List<string>();
+            foreach (var outfit in role.outfits)
+            {
+                if (outfit == null || outfit.stage <= 0) continue;
+                string name = !string.IsNullOrEmpty(outfit.displayName) ? outfit.displayName : outfit.item != null ? outfit.item.displayName : outfit.outfitId;
+                if (outfits != null && outfits.IsWearing(outfit)) parts.Add($"<color=#8EE59A>◎{name}</color>");
+                else if (outfits != null && outfits.Owns(outfit)) parts.Add($"<color=#FFD23F>{name}（C で着る）</color>");
+                else
+                {
+                    var pickup = outfit.item != null ? NearestPickup(outfit.item) : null;
+                    parts.Add(pickup != null ? $"{name}（{AreaOf(pickup.transform)}）" : name);
+                }
+            }
+            if (parts.Count == 0) return;
+            sb.Append("<size=19><color=#D9D2C5>服：</color>").Append(string.Join("　", parts)).Append("</size>\n");
+        }
+
         private ItemPickup NearestPickup(ItemDefinition item)
         {
             ItemPickup best = null;
@@ -229,7 +252,7 @@ namespace Team5.UI
             panel.anchorMin = panel.anchorMax = new Vector2(1f, 1f);
             panel.pivot = new Vector2(1f, 1f);
             panel.anchoredPosition = new Vector2(-24f, -470f);
-            panel.sizeDelta = new Vector2(500f, 440f);
+            panel.sizeDelta = new Vector2(500f, 480f);
             var image = go.GetComponent<Image>();
             image.sprite = panelSprite;
             image.type = panelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
@@ -241,7 +264,7 @@ namespace Team5.UI
             title.text = $"目標：{goalName}を完成させる";
             title.color = new Color(1f, 0.82f, 0.24f);
             next = MakeText(panel, "Next", 23, new Vector2(22f, -150f), new Vector2(-22f, -58f));
-            body = MakeText(panel, "Body", 23, new Vector2(22f, -430f), new Vector2(-22f, -158f));
+            body = MakeText(panel, "Body", 23, new Vector2(22f, -470f), new Vector2(-22f, -158f));
             body.lineSpacing = 1.0f;
             next.color = new Color(1f, 0.72f, 0.86f);
         }

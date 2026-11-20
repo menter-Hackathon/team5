@@ -187,6 +187,7 @@ namespace Team5.Audio
             }
             if (context.Tasks != null)
             {
+                context.Tasks.OnTaskAssigned += HandleTaskAssigned;
                 context.Tasks.OnTaskCompleted += HandleTaskCompleted;
                 context.Tasks.OnTaskFailed += HandleTaskFailed;
             }
@@ -208,6 +209,7 @@ namespace Team5.Audio
                 }
                 if (context.Tasks != null)
                 {
+                    context.Tasks.OnTaskAssigned -= HandleTaskAssigned;
                     context.Tasks.OnTaskCompleted -= HandleTaskCompleted;
                     context.Tasks.OnTaskFailed -= HandleTaskFailed;
                 }
@@ -239,6 +241,7 @@ namespace Team5.Audio
             if (!endingPlayed) CrossfadeTo(phase == Phase.Omote); // 勝敗が決まったあとは結果の曲のまま
         }
         private void HandleCaught(VisionSensor watcher) => PlaySe(SeId.Caught);
+        private void HandleTaskAssigned(TaskInstance task) => PlaySe(SeId.TaskAssigned); // お題が出たことに気づけるように
         private void HandleTaskCompleted(TaskInstance task) => PlaySe(SeId.TaskComplete);
         private void HandleTaskFailed(TaskInstance task) => PlaySe(SeId.TaskFail);
         private void HandleCrafted(Team5.Data.RecipeDefinition recipe) => PlaySe(SeId.Crafted);
