@@ -190,7 +190,7 @@ namespace Team5.UI
             {
                 if (surveillance.IsPlayerWatched && !wasWatched)
                     Tip("watched", "見られている！",
-                        "村人の足元の扇形が<color=#FF6A5A>赤</color>くなり、右上の目が開いたら、見られているしるし。\n\n" +
+                        "村人の足元の扇形が<color=#FF6A5A>赤</color>くなり、\n右上の目が開いたら、見られているしるし。\n\n" +
                         "見られている間に <color=#FFD23F>素材を拾う・作業台で作る・道から外れる</color> と、\n「らしくない」ことがばれて <color=#FF6A5A>平和度 −25</color>。\n" +
                         "お題をこなすのは、見られていても大丈夫。");
                 wasWatched = surveillance.IsPlayerWatched;
@@ -211,7 +211,7 @@ namespace Team5.UI
             };
             Tip("task", "村長のお題",
                 $"左のカード：<color=#FFD23F>{def.title}</color>\n{how}\n画面の<color=#FFD23F>黄色の矢印</color>が行き先を指すよ。\n\n" +
-                "こなすと村は安心する（<color=#8EE59A>平和度 ＋</color>）。でも、自分の色はうすくなる（<color=#FF9A6A>個性 −</color>）。\n" +
+                "こなすと村は安心する（<color=#8EE59A>平和度 ＋</color>）。\nでも、自分の色はうすくなる（<color=#FF9A6A>個性 −</color>）。\n" +
                 "時間切れになると平和度が下がるよ。");
         }
 
@@ -267,7 +267,7 @@ namespace Team5.UI
                 if (recipe != null && context.Inventory.Has(recipe.inputs))
                 {
                     Tip("ready", "材料がそろった！",
-                        $"{StationArea()}の作業台へ行き、E で「{recipe.displayName}」を作ろう（<color=#FA80C7>ピンクの矢印</color>）。\n\n" +
+                        $"{StationArea()}の作業台へ行き、E で「{recipe.displayName}」を作ろう\n（<color=#FA80C7>ピンクの矢印</color>の先）。\n\n" +
                         "作っている間に見られると、中断して<color=#FF6A5A>平和度 −25</color>。\nまわりに村人がいないのを確かめてから！");
                     break;
                 }
@@ -441,7 +441,7 @@ namespace Team5.UI
             cardImage.transform.SetParent(root, false);
             card = cardImage.rectTransform;
             card.anchorMin = card.anchorMax = new Vector2(0.5f, 0.5f);
-            card.sizeDelta = new Vector2(1180f, 560f);
+            card.sizeDelta = new Vector2(1400f, 560f);
             cardImage.sprite = panelSprite;
             cardImage.type = panelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
             cardImage.color = panelSprite != null ? Color.white : new Color(0.18f, 0.17f, 0.2f, 0.95f);
@@ -463,8 +463,8 @@ namespace Team5.UI
             banner = bannerImage.rectTransform;
             banner.anchorMin = banner.anchorMax = new Vector2(0.5f, 0f);
             banner.pivot = new Vector2(0.5f, 0f);
-            banner.anchoredPosition = new Vector2(-120f, 40f);
-            banner.sizeDelta = new Vector2(1240f, 110f);
+            banner.anchoredPosition = new Vector2(30f, 40f);
+            banner.sizeDelta = new Vector2(1100f, 110f);
             bannerImage.color = new Color(0.09f, 0.07f, 0.11f, 0.88f);
             bannerImage.raycastTarget = false;
             bannerText = MakeText(banner, "Text", 26, new Vector2(20f, -106f), new Vector2(-20f, -4f), TextAnchor.MiddleCenter);
