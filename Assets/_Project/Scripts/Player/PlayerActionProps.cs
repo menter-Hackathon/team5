@@ -6,7 +6,7 @@ namespace Team5.Player
     // 道具は手の骨の位置に毎フレーム置き直すので、どのモーションでも手から離れない
     public class PlayerActionProps : MonoBehaviour
     {
-        public enum Prop { None, Sword, Bowl, Hammer, Hoe, Broom }
+        public enum Prop { None, Sword, Bowl, Hammer, Hoe, Broom, Pencil, Tuner, Guitar }
 
         [SerializeField] private float scale = 1.3f; // モデルの大きさに合わせる（頭が大きい体型なので少し大きめ）
 
@@ -17,7 +17,7 @@ namespace Team5.Player
         private Transform bowl;      // 左手に持つお椀
         private Prop current;
 
-        private static Material wood, metal, bowlMat, soup, straw;
+        private static Material wood, metal, bowlMat, soup, straw, paper, dark;
 
         public void Setup(Animator target)
         {
@@ -57,6 +57,24 @@ namespace Team5.Player
                 case Prop.Broom: // 長い柄 → 穂
                     Part(PrimitiveType.Cylinder, main, new Vector3(0, 0.3f, 0), new Vector3(0.028f, 0.5f, 0.028f), wood);
                     Part(PrimitiveType.Cube, main, new Vector3(0, 0.8f, 0), new Vector3(0.22f, 0.16f, 0.05f), straw);
+                    break;
+                case Prop.Pencil: // 右手に鉛筆、体の前に紙（bowl の枠を紙に使う）
+                    Part(PrimitiveType.Cylinder, main, new Vector3(0, 0.06f, 0), new Vector3(0.018f, 0.06f, 0.018f), straw);
+                    Part(PrimitiveType.Cube, main, new Vector3(0, 0.005f, 0), new Vector3(0.012f, 0.012f, 0.012f), dark);
+                    bowl = new GameObject("Paper").transform;
+                    bowl.SetParent(root, false);
+                    Part(PrimitiveType.Cube, bowl, Vector3.zero, new Vector3(0.24f, 0.004f, 0.17f), paper);
+                    break;
+                case Prop.Tuner: // 手のひらサイズの機材と画面・つまみ
+                    Part(PrimitiveType.Cube, main, Vector3.zero, new Vector3(0.16f, 0.1f, 0.05f), dark);
+                    Part(PrimitiveType.Cube, main, new Vector3(-0.025f, 0.01f, 0.026f), new Vector3(0.07f, 0.045f, 0.004f), soup);
+                    Part(PrimitiveType.Cylinder, main, new Vector3(0.05f, 0f, 0.03f), new Vector3(0.03f, 0.01f, 0.03f), metal);
+                    break;
+                case Prop.Guitar: // 胴（丸）・ネック・ヘッド。ローカル X がネックの向き、Z が表面の向き
+                    Part(PrimitiveType.Cylinder, main, Vector3.zero, new Vector3(0.3f, 0.035f, 0.3f), bowlMat).transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+                    Part(PrimitiveType.Cylinder, main, new Vector3(0f, 0f, 0.02f), new Vector3(0.08f, 0.004f, 0.08f), dark).transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+                    Part(PrimitiveType.Cube, main, new Vector3(0.3f, 0f, 0f), new Vector3(0.36f, 0.045f, 0.025f), wood);
+                    Part(PrimitiveType.Cube, main, new Vector3(0.52f, 0f, 0f), new Vector3(0.09f, 0.06f, 0.03f), wood);
                     break;
                 case Prop.Bowl: // 右手に箸、左手にお椀
                     Part(PrimitiveType.Cube, main, new Vector3(-0.012f, 0.1f, 0), new Vector3(0.01f, 0.22f, 0.01f), wood);
@@ -121,6 +139,31 @@ namespace Team5.Player
                     main.SetPositionAndRotation(hold - dir * 0.2f * scale, Quaternion.LookRotation(Vector3.Cross(right, dir), dir));
                     break;
                 }
+                case Prop.Pencil:
+                {
+                    // 体の前の紙に、鉛筆の先で書き込む（side で細かく、u で行を進める）
+                    Vector3 paperPos = basePos + up * 0.66f + fwd * 0.36f;
+                    if (bowl != null) bowl.SetPositionAndRotation(paperPos, Quaternion.LookRotation(fwd, up));
+                    Vector3 tip = paperPos + up * 0.01f + right * (0.05f * side) + fwd * Mathf.Lerp(0.05f, -0.05f, u);
+                    Vector3 dir = (up * 0.85f - fwd * 0.3f + right * 0.25f).normalized; // 先 → 握り
+                    main.SetPositionAndRotation(tip, Quaternion.LookRotation(Vector3.Cross(right, dir), dir));
+                    break;
+                }
+                case Prop.Tuner:
+                {
+                    Vector3 pos = basePos + up * 0.72f + fwd * 0.34f - right * 0.04f;
+                    main.SetPositionAndRotation(pos, Quaternion.LookRotation(fwd, up) * Quaternion.Euler(-20f, 0f, 4f * side));
+                    break;
+                }
+                case Prop.Guitar:
+                {
+                    // 胴は体の前で右寄り、ネックは左上へ。かき鳴らしに合わせて少し揺れる
+                    Vector3 body = basePos + up * (0.6f + 0.01f * side) + fwd * 0.3f + right * 0.06f;
+                    Vector3 neck = (-right * 0.9f + up * 0.35f).normalized;
+                    Vector3 face = Quaternion.AngleAxis(3f * side, neck) * fwd;
+                    main.SetPositionAndRotation(body, Quaternion.LookRotation(face, Vector3.Cross(face, neck)));
+                    break;
+                }
                 case Prop.Bowl:
                 {
                     // お椀は胸の前、箸はお椀と口のあいだを往復する
@@ -137,7 +180,7 @@ namespace Team5.Player
 
         private void OnDestroy() => Clear();
 
-        private static void Part(PrimitiveType type, Transform parent, Vector3 pos, Vector3 size, Material mat)
+        private static GameObject Part(PrimitiveType type, Transform parent, Vector3 pos, Vector3 size, Material mat)
         {
             var go = GameObject.CreatePrimitive(type);
             Destroy(go.GetComponent<Collider>());
@@ -145,6 +188,7 @@ namespace Team5.Player
             go.transform.localPosition = pos;
             go.transform.localScale = size;
             go.GetComponent<MeshRenderer>().sharedMaterial = mat;
+            return go;
         }
 
         private static void EnsureMaterials()
@@ -155,6 +199,8 @@ namespace Team5.Player
             bowlMat = Mat(new Color(0.85f, 0.3f, 0.22f));
             soup = Mat(new Color(0.93f, 0.55f, 0.2f));
             straw = Mat(new Color(0.86f, 0.72f, 0.38f));
+            paper = Mat(new Color(0.96f, 0.94f, 0.88f));
+            dark = Mat(new Color(0.18f, 0.18f, 0.2f));
         }
 
         private static Material Mat(Color color)
