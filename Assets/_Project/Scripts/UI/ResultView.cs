@@ -219,7 +219,9 @@ namespace Team5.UI
                 Debug.LogWarning("GameManager がありません。Title シーンから再生してください。", this);
                 return;
             }
-            manager.StartGame(manager.CurrentRole != null ? manager.CurrentRole : fallbackRole);
+            // 職業を選び直せるように、タイトルの職業選びへ戻る
+            TitleView.OpenRolesOnLoad = true;
+            manager.ReturnToTitle();
         }
 
         // 「タイトルへ」ボタンから呼ぶ
