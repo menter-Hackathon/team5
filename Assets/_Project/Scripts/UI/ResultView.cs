@@ -124,6 +124,13 @@ namespace Team5.UI
                     clearWoodButton, clearPlayerPrefab, role, summary, balance, heading.font, clearPortraitShader);
                 return;
             }
+            if (!clear && result != GameResult.None)
+            {
+                // ゲームオーバーは村役場から届く書類の形で出す
+                var photo = result == GameResult.GameOverPeace ? peacePicture : result == GameResult.GameOverFaded ? fadedPicture : timeUpPicture;
+                gameObject.AddComponent<GameOverNoticePresentation>().Show(result, role, summary, balance, heading.font, photo);
+                return;
+            }
             PlayEntrance(clear);
         }
 
