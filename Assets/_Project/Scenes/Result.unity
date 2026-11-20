@@ -2018,6 +2018,7 @@ MonoBehaviour:
   peaceFill: {fileID: 1528505466}
   tasksValue: {fileID: 1959176053}
   caughtValue: {fileID: 738221041}
+  clearBackground: {fileID: 21300000, guid: 6748e3404faa46c2b23f9c764109cc3b, type: 3}
   clearPicture: {fileID: 21300000, guid: d0cafbc8d6d894e4eaf4af9ed96ff2b1, type: 3}
   peacePicture: {fileID: 21300000, guid: 36f2fbab4dda8a24c88f1155fcc6bc20, type: 3}
   fadedPicture: {fileID: 21300000, guid: 089d07f6a8ee0614996076e1959c176f, type: 3}

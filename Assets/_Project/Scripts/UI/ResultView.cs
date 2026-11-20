@@ -26,6 +26,7 @@ namespace Team5.UI
         [SerializeField] private Text caughtValue;
 
         [Header("結果の絵")]
+        [SerializeField] private Sprite clearBackground;
         [SerializeField] private Sprite clearPicture;
         [SerializeField] private Sprite peacePicture;
         [SerializeField] private Sprite fadedPicture;
@@ -98,6 +99,12 @@ namespace Team5.UI
                     break;
             }
 
+            // 背景を白で描画し、単色用の色が画像に乗らないようにする。
+            // 未設定のシーンでは、従来の単色背景をそのまま使う。
+            background.sprite = clear ? clearBackground : null;
+            background.type = Image.Type.Simple;
+            if (background.sprite != null) background.color = Color.white;
+
             float individualityMax = balance != null ? balance.individualityMax : 100f;
             float peaceMax = balance != null ? balance.peaceMax : 100f;
             individualityValue.text = $"{Mathf.RoundToInt(summary.individuality)}";
@@ -136,7 +143,11 @@ namespace Team5.UI
             hint.resizeTextForBestFit = true;
             hint.resizeTextMinSize = 18;
             hint.resizeTextMaxSize = 22;
-            hint.rectTransform.sizeDelta = new Vector2(880, 80);
+            // hint は横に伸縮する子Text。sizeDeltaに幅を入れると親の幅に加算される。
+            if (hint.transform.parent is RectTransform hintPanel)
+                hintPanel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80f);
+            hint.rectTransform.offsetMin = new Vector2(24f, 8f);
+            hint.rectTransform.offsetMax = new Vector2(-24f, -8f);
         }
 
         // 絵 → ラベル → 見出し → 一言 → 数値 → ヒント → ボタン の順に出す
