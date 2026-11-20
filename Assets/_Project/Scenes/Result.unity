@@ -2027,6 +2027,18 @@ MonoBehaviour:
   peacePicture: {fileID: 21300000, guid: 36f2fbab4dda8a24c88f1155fcc6bc20, type: 3}
   fadedPicture: {fileID: 21300000, guid: 089d07f6a8ee0614996076e1959c176f, type: 3}
   timeUpPicture: {fileID: 21300000, guid: bc9698f56dc219748b45795a34b701fc, type: 3}
+  villagerModels:
+  - {fileID: 919132149155446097, guid: 8c6029a7b60f87544afa4b8ff41b8fd7, type: 3}
+  - {fileID: 919132149155446097, guid: d845b5fb76842dc49a782542f5849ace, type: 3}
+  - {fileID: 919132149155446097, guid: 51071fef3d01e4248ad335132fafc7ef, type: 3}
+  villagerMaterials:
+  - {fileID: 2100000, guid: e37b0a6ebb688f345a9c46f0a2e3770c, type: 2}
+  - {fileID: 2100000, guid: ff7a18021ae8dd54699678b50ec0d4ce, type: 2}
+  - {fileID: 2100000, guid: e79825e3be604cf45b0817debb8a7f30, type: 2}
+  villagerControllers:
+  - {fileID: 9100000, guid: f94a8328d5da14242aad84fd298acad8, type: 2}
+  - {fileID: 9100000, guid: f36a02e91be7069498063feaafe6c072, type: 2}
+  - {fileID: 9100000, guid: e01af707361ce984c8b72d4532b6a04f, type: 2}
   fallbackRole: {fileID: 11400000, guid: a528406cb994c9b4698fd96bd8e8daee, type: 2}
   balance: {fileID: 11400000, guid: 5e82dff28a417a5498acc266e0b70662, type: 2}
 --- !u!114 &1327248953
