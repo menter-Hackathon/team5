@@ -17,6 +17,7 @@ namespace Team5.Tasks
         private RoleDefinition role;
         private int nextIndex;
         private float waitRemaining; // 次のお題が出るまでの秒数
+        private float lastSpotActionTime = -1f;
         private bool running;
 
         public void Begin(RoleDefinition role)
@@ -37,6 +38,7 @@ namespace Team5.Tasks
             if (IsActive())
             {
                 if (Current.Definition.timeLimitSeconds <= 0f) return; // 0 なら無制限
+                if (Time.time - lastSpotActionTime < 0.15f) return;   // その場でお題をしている間（食べる・素振りなど）は時間を止める
                 Current.TimeRemaining -= Time.deltaTime;
                 if (Current.TimeRemaining <= 0f) Fail();
             }
@@ -52,6 +54,7 @@ namespace Team5.Tasks
         {
             if (!IsActive(TaskType.ActionAtSpot) || Current.Definition.targetSpotId != spotId) return;
 
+            lastSpotActionTime = Time.time;
             float actionSeconds = Mathf.Max(Current.Definition.actionSeconds, 0.01f);
             Current.Progress = Mathf.Min(Current.Progress + seconds / actionSeconds, 1f);
             if (Current.Progress >= 1f) Complete();

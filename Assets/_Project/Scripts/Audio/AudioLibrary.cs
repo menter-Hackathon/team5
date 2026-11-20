@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Team5.Audio
 {
     public enum BgmId { Title, Omote, Ura, Clear, GameOver }
-    public enum SeId { Pickup, Craft, Crafted, Caught, TaskComplete, TaskFail, Equip, Button, ParameterUp, ParameterDown }
+    public enum SeId { Pickup, Craft, Crafted, Caught, TaskComplete, TaskFail, Equip, Button, ParameterUp, ParameterDown, TaskAssigned }
 
     // BGM と SE の AudioClip を名前（BgmId / SeId）付きで持つ（CD-17）
     [CreateAssetMenu(menuName = "Team5/Audio Library")]
