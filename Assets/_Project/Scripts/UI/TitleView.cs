@@ -140,7 +140,7 @@ namespace Team5.UI
             root.anchorMin = Vector2.zero; root.anchorMax = Vector2.one;
             root.offsetMin = root.offsetMax = Vector2.zero;
             var dim = root.gameObject.AddComponent<UnityEngine.UI.Image>();
-            dim.color = new Color(0.04f, 0.03f, 0.06f, 0.72f);
+            dim.color = new Color(0.12f, 0.07f, 0.03f, 0.7f);
 
             var heading = NewText(root, font, "どの「なりたい自分」を目指す？", 56, new Color(1f, 0.82f, 0.24f));
             heading.rectTransform.anchorMin = heading.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
@@ -157,7 +157,7 @@ namespace Team5.UI
                 card.sizeDelta = new Vector2(width, 420f);
                 card.anchoredPosition = new Vector2(-total * 0.5f + width * 0.5f + i * (width + gap), -20f);
                 var bg = card.gameObject.AddComponent<UnityEngine.UI.Image>();
-                bg.color = new Color(0.12f, 0.1f, 0.14f, 0.96f);
+                bg.color = new Color(0.26f, 0.17f, 0.11f, 0.96f);
                 var button = card.gameObject.AddComponent<UnityEngine.UI.Button>();
                 var colors = button.colors;
                 colors.normalColor = Color.white;
@@ -203,7 +203,7 @@ namespace Team5.UI
                 var glow = NewRect("Glow", frame);
                 glow.anchorMin = Vector2.zero; glow.anchorMax = Vector2.one; glow.offsetMin = glow.offsetMax = Vector2.zero;
                 var glowImage = glow.gameObject.AddComponent<UnityEngine.UI.Image>();
-                var c = role.roleColor; glowImage.color = new Color(c.r, c.g, c.b, 0.55f); glowImage.raycastTarget = false;
+                var c = role.roleColor; glowImage.color = new Color(c.r, c.g, c.b, 0.22f); glowImage.raycastTarget = false;
                 var hint = NewText(card, font, "▶ Enter で決定", 26, Color.white);
                 hint.rectTransform.anchorMin = hint.rectTransform.anchorMax = new Vector2(0.5f, 0f);
                 hint.rectTransform.sizeDelta = new Vector2(360f, 40f);
@@ -217,7 +217,7 @@ namespace Team5.UI
             back.sizeDelta = new Vector2(260f, 70f);
             back.anchoredPosition = new Vector2(0f, -320f);
             var backImage = back.gameObject.AddComponent<UnityEngine.UI.Image>();
-            backImage.color = new Color(0.25f, 0.22f, 0.28f, 0.95f);
+            backImage.color = new Color(0.4f, 0.27f, 0.17f, 0.95f);
             var backButton = back.gameObject.AddComponent<UnityEngine.UI.Button>();
             backButton.onClick.AddListener(HideRoles);
             var backText = NewText(back, font, "もどる", 32, Color.white);
