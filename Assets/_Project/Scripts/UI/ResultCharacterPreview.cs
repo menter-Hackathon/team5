@@ -76,6 +76,7 @@ namespace Team5.UI
             foreach (var node in stage.GetComponentsInChildren<Transform>(true)) node.gameObject.layer = PreviewLayer;
             texture = new RenderTexture(768, 960, 24, RenderTextureFormat.ARGB32);
             texture.name = "ClearCharacterTexture";
+            texture.antiAliasing = 8; // 細いすき間・輪郭のギザギザを抑える
             texture.Create();
             GetComponent<RawImage>().texture = texture;
             var cameraObject = new GameObject("ResultPortraitCamera", typeof(Camera));

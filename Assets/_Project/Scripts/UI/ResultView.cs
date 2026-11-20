@@ -65,16 +65,11 @@ namespace Team5.UI
             switch (result)
             {
                 case GameResult.Clear:
-                    bool ramenChef = role != null && role.roleId == "ramen_chef";
                     Set(new Color(0.98f, 0.93f, 0.81f), clearPicture, Ink, Accent, Ink,
                         "これが、わたしらしさ。",
-                        $"{imposed}になるはずだった。\n" + (ramenChef
-                            ? "けれど、いま手にしているのは、自分で作った一杯だ。"
-                            : "けれど、いまここにいるのは、自分で選んだわたしだ。"),
+                        $"{imposed}になるはずだった。\n" + ClearResultText.Story(role),
                         $"なりたかった自分　{wanted}");
-                    SetNotice("らしさ達成", ramenChef
-                        ? "……まあ、一杯くらいは、いただこうか。"
-                        : "……それが、お前の選んだ道か。");
+                    SetNotice("らしさ達成", ClearResultText.ChiefLineOneLine(role));
                     break;
                 case GameResult.GameOverPeace:
                     Set(Fog, peacePicture, Ink, Warning, Color.white,
