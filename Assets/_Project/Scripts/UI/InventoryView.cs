@@ -30,6 +30,7 @@ namespace Team5.UI
 
         private void Start()
         {
+            UiFx.StripKeyNotes(transform);
             var context = GameSceneContext.Instance;
             if (context == null)
             {

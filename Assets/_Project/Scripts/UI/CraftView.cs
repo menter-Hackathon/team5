@@ -33,6 +33,7 @@ namespace Team5.UI
 
         private void Start()
         {
+            UiFx.StripKeyNotes(transform);
             listPanel.SetActive(false);
             progressPanel.SetActive(false);
             closeButton.onClick.AddListener(Close);
