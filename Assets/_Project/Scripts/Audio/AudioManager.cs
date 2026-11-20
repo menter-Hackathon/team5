@@ -32,7 +32,11 @@ namespace Team5.Audio
         private GameSceneContext context;
         private GameEndJudge judge;
         private OutfitController outfits;
-        private bool wasCrafting;
+        [SerializeField] private float clockWarningSeconds = 30f;
+        private AudioSource craftSource, taskSource, clockSource;
+        private Team5.Data.RecipeDefinition activeRecipe;
+        private TaskSpot[] taskSpots = System.Array.Empty<TaskSpot>();
+        private Coroutine subscribeRoutine;
         private float lastParameterSe;
         private bool endingPlayed; // 勝敗が決まったときに結果の曲を鳴らした（結果画面でもう一度鳴らさない）
 
@@ -48,6 +52,9 @@ namespace Team5.Audio
             omote = CreateSource("BGM_A");
             ura = CreateSource("BGM_B");
             seSource = CreateSource("SE");
+            craftSource = CreateSource("CraftLoop");
+            taskSource = CreateSource("TaskLoop");
+            clockSource = CreateSource("ClockLoop");
             SceneManager.sceneLoaded += HandleSceneLoaded;
         }
 
@@ -167,7 +174,7 @@ namespace Team5.Audio
             else if (scene.name == SceneNames.Game)
             {
                 endingPlayed = false;
-                StartCoroutine(SubscribeGameNextFrame());
+                subscribeRoutine = StartCoroutine(SubscribeGameNextFrame());
             }
         }
 
@@ -175,6 +182,7 @@ namespace Team5.Audio
         private IEnumerator SubscribeGameNextFrame()
         {
             yield return null;
+            subscribeRoutine = null;
             context = GameSceneContext.Instance;
             if (context == null) yield break;
 
@@ -189,9 +197,16 @@ namespace Team5.Audio
             {
                 context.Tasks.OnTaskAssigned += HandleTaskAssigned;
                 context.Tasks.OnTaskCompleted += HandleTaskCompleted;
+                if (context.Tasks.Current != null && context.Tasks.Current.State == TaskState.Active)
+                    HandleTaskAssigned(context.Tasks.Current);
                 context.Tasks.OnTaskFailed += HandleTaskFailed;
             }
-            if (context.Crafting != null) context.Crafting.OnCrafted += HandleCrafted;
+            taskSpots = FindObjectsByType<TaskSpot>(FindObjectsSortMode.None);
+            if (context.Crafting != null)
+            {
+                context.Crafting.OnCrafted += HandleCrafted;
+                context.Crafting.OnCraftProgress += HandleCraftProgress;
+            }
             if (context.Parameters != null) context.Parameters.OnChanged += HandleParameterChanged;
             if (context.Player != null && context.Player.TryGetComponent(out outfits)) outfits.OnEquipped += HandleEquipped;
             judge = FindFirstObjectByType<GameEndJudge>();
@@ -200,6 +215,11 @@ namespace Team5.Audio
 
         private void Unsubscribe()
         {
+            if (subscribeRoutine != null) StopCoroutine(subscribeRoutine);
+            subscribeRoutine = null;
+            activeRecipe = null;
+            taskSpots = System.Array.Empty<TaskSpot>();
+            StopLoops();
             if (context != null)
             {
                 if (context.Surveillance != null)
@@ -213,7 +233,11 @@ namespace Team5.Audio
                     context.Tasks.OnTaskCompleted -= HandleTaskCompleted;
                     context.Tasks.OnTaskFailed -= HandleTaskFailed;
                 }
-                if (context.Crafting != null) context.Crafting.OnCrafted -= HandleCrafted;
+                if (context.Crafting != null)
+                {
+                    context.Crafting.OnCrafted -= HandleCrafted;
+                    context.Crafting.OnCraftProgress -= HandleCraftProgress;
+                }
                 if (context.Parameters != null) context.Parameters.OnChanged -= HandleParameterChanged;
             }
             if (outfits != null) outfits.OnEquipped -= HandleEquipped;
@@ -230,10 +254,54 @@ namespace Team5.Audio
 
         private void Update()
         {
-            // 作業台で作り始めたとき（CraftingSystem に開始のイベントがないので見張る）
-            bool crafting = context != null && context.Crafting != null && context.Crafting.IsCrafting;
-            if (crafting && !wasCrafting) PlaySe(SeId.Craft);
-            wasCrafting = crafting;
+            if (context == null || endingPlayed) { StopLoops(); return; }
+            bool paused = Time.timeScale == 0f;
+            bool crafting = context.Crafting != null && context.Crafting.IsCrafting;
+            if (!crafting) activeRecipe = null;
+            SeId? recipeSound = activeRecipe == null ? null : RecipeSound(activeRecipe.recipeId);
+            SetLoop(craftSource, recipeSound, crafting, paused);
+
+            SeId? actionSound = null;
+            var current = context.Tasks != null ? context.Tasks.Current : null;
+            if (current != null && current.State == TaskState.Active)
+                foreach (var spot in taskSpots)
+                    if (spot != null && spot.IsActing && spot.SpotId == current.Definition.targetSpotId)
+                        actionSound = spot.SpotId == "training_ground" ? SeId.Swing
+                            : spot.SpotId == "canteen" ? SeId.Eat : (SeId?)null;
+            SetLoop(taskSource, actionSound, actionSound.HasValue, paused);
+            var timer = context.Timer;
+            SetLoop(clockSource, SeId.ClockWarning, timer != null && timer.IsRunning
+                && timer.Remaining > 0f && timer.Remaining <= clockWarningSeconds, paused);
+        }
+
+        private static SeId? RecipeSound(string id) => id == "soup" ? SeId.Boil : id == "paitan" ? SeId.Pour : (SeId?)null;
+
+        private void HandleCraftProgress(Team5.Data.RecipeDefinition recipe, float progress)
+        {
+            if (recipe == null) return;
+            if (activeRecipe != recipe && !RecipeSound(recipe.recipeId).HasValue) PlaySe(SeId.Craft);
+            activeRecipe = recipe;
+        }
+
+        private void SetLoop(AudioSource source, SeId? id, bool active, bool paused)
+        {
+            var clip = active && id.HasValue && library != null ? library.GetSe(id.Value) : null;
+            if (clip == null) { source.Stop(); source.clip = null; return; }
+            if (source.clip != clip)
+            {
+                source.clip = clip;
+                source.loop = true;
+                source.volume = seVolume * 0.65f;
+                source.Play();
+            }
+            if (paused) source.Pause();
+            else source.UnPause();
+        }
+
+        private void StopLoops()
+        {
+            foreach (var source in new[] { craftSource, taskSource, clockSource })
+                if (source != null) { source.Stop(); source.clip = null; }
         }
 
         private void HandlePhaseChanged(Phase phase)
@@ -241,10 +309,15 @@ namespace Team5.Audio
             if (!endingPlayed) CrossfadeTo(phase == Phase.Omote); // 勝敗が決まったあとは結果の曲のまま
         }
         private void HandleCaught(VisionSensor watcher) => PlaySe(SeId.Caught);
-        private void HandleTaskAssigned(TaskInstance task) => PlaySe(SeId.TaskAssigned); // お題が出たことに気づけるように
+        private void HandleTaskAssigned(TaskInstance task) => PlaySe(SeId.TaskAssigned);
         private void HandleTaskCompleted(TaskInstance task) => PlaySe(SeId.TaskComplete);
         private void HandleTaskFailed(TaskInstance task) => PlaySe(SeId.TaskFail);
-        private void HandleCrafted(Team5.Data.RecipeDefinition recipe) => PlaySe(SeId.Crafted);
+        private void HandleCrafted(Team5.Data.RecipeDefinition recipe)
+        {
+            activeRecipe = null;
+            craftSource.Stop(); craftSource.clip = null;
+            PlaySe(SeId.Crafted);
+        }
         private void HandleEquipped(Team5.Data.OutfitDefinition outfit) => PlaySe(SeId.Equip);
 
         private void HandleParameterChanged(ParameterType type, float before, float after)
@@ -259,6 +332,7 @@ namespace Team5.Audio
         private void HandleEnding(GameResult result)
         {
             endingPlayed = true;
+            StopLoops();
             PlayBgm(result == GameResult.Clear ? BgmId.Clear : BgmId.GameOver);
         }
     }
