@@ -65,7 +65,7 @@ namespace Team5.UI
         [SerializeField] private CanvasGroup caughtGroup;
         [SerializeField] private Text caughtPenalty;
 
-        [Header("操作のヒント")]
+        [Header("近くで E を押せるときだけ出す")]
         [SerializeField] private CanvasGroup promptGroup;
         [SerializeField] private Text promptText;
 
@@ -135,6 +135,26 @@ namespace Team5.UI
             caughtGroup.alpha = 0f;
             vignette.alpha = 0f;
             promptGroup.alpha = 0f;
+            Simplify();
+        }
+
+        // 説明の文や操作の帯は出さず、ゲージ・色・矢印で伝える（操作は Esc の一時停止で見られる）
+        private void Simplify()
+        {
+            foreach (var path in new[] { "Keys", "Task/Chip", "Task/Body/Reward", "Watched/Sub" })
+            {
+                var child = transform.Find(path);
+                if (child != null) child.gameObject.SetActive(false);
+            }
+            if (watchedSub != null) watchedSub.gameObject.SetActive(false);
+            if (taskReward != null) taskReward.gameObject.SetActive(false);
+            var parameters = transform.Find("Parameters");
+            if (parameters == null) return;
+            foreach (Text label in parameters.GetComponentsInChildren<Text>(true))
+            {
+                if (label.text == "村の平和度") label.text = "平和度";
+                else if (label.text == "個性の濃さ") label.text = "個性";
+            }
         }
 
         // ロールの名前と色を出す。Game シーンを直接再生したときは GameSceneContext.Start のあとで決まるので、決まるまで毎フレーム試す
@@ -145,7 +165,7 @@ namespace Team5.UI
             var manager = GameManager.Instance;
             var role = context.Role != null ? context.Role : manager != null ? manager.CurrentRole : null;
             if (role == null) return;
-            roleProgressLabel.text = $"{role.displayName}への進み具合";
+            roleProgressLabel.text = role.displayName;
             roleName.text = role.displayName;
             individuality.icon.color = role.roleColor;
             individuality.fill.GetComponent<Image>().color = role.roleColor;
@@ -278,14 +298,14 @@ namespace Team5.UI
             }
             if (!active)
             {
-                taskWaiting.text = task == null ? "次のお題を待っています"
-                    : task.State == TaskState.Completed ? $"達成！ {task.Definition.title}"
-                    : $"失敗… {task.Definition.title}";
+                taskWaiting.text = task == null ? "お題待ち"
+                    : task.State == TaskState.Completed ? "達成！"
+                    : "失敗…";
                 return;
             }
 
             var definition = task.Definition;
-            taskTitle.text = $"お題：{definition.title}";
+            taskTitle.text = definition.title;
             taskHint.text = HintOf(definition);
             taskReward.text = $"こなすと 平和度 +{definition.peaceReward:0} / 個性 −{definition.individualityCost:0}";
             if (interactor != null) HandleFocusChanged(interactor.Current); // 同じ場所でも出す文が変わる
@@ -304,12 +324,12 @@ namespace Team5.UI
             switch (definition.type)
             {
                 case TaskType.ActionAtSpot:
-                    return $"{PlaceName(definition.targetSpotId)}で [E] 長押し（{definition.actionSeconds:0} 秒）";
+                    return $"{PlaceName(definition.targetSpotId)}　E 長押し";
                 case TaskType.BringItem:
                     int have = context.Inventory != null ? context.Inventory.Count(definition.requiredItem) : 0;
-                    return $"村長の家へ [E] 渡す（{definition.requiredItem.displayName} {have}/{definition.requiredCount}）";
+                    return $"{definition.requiredItem.displayName} {have}/{definition.requiredCount} → 村長の家";
                 default:
-                    return $"{PlaceName(definition.targetSpotId)}に [E] 話しかける";
+                    return $"{PlaceName(definition.targetSpotId)}と話す";
             }
         }
 
@@ -364,9 +384,8 @@ namespace Team5.UI
             watchedCircle.sprite = watched ? circle : ring;
             watchedCircle.color = watched ? Warning : Stone;
             watchedEye.sprite = watched ? eyeOpen : eyeClosed;
-            watchedTitle.text = watched ? "見られている！" : "だれも見ていない";
+            watchedTitle.text = watched ? "見られている！" : "";
             watchedTitle.color = watched ? WarningOnDark : Color.white;
-            watchedSub.text = watched ? "らしく ふるまおう" : "今なら こっそり動ける";
             vignetteTarget = watched ? 1f : 0f;
             if (watchedPanel != null) UiFx.Punch(this, watchedPanel, watched ? 0.12f : 0.05f);
         }
@@ -396,7 +415,7 @@ namespace Team5.UI
             caughtToast.anchoredPosition = new Vector2(caughtToast.anchoredPosition.x, caughtToastY + drop);
         }
 
-        // ---------- 操作のヒント ----------
+        // ---------- E で何ができるか（近くにあるときだけ） ----------
 
         private void HandleFocusChanged(IInteractable target)
         {

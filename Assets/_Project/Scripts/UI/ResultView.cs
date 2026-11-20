@@ -37,6 +37,11 @@ namespace Team5.UI
         [SerializeField] private Sprite fadedPicture;
         [SerializeField] private Sprite timeUpPicture;
 
+        [Header("ゲームオーバーの場面に並べる村人（村長・見張り・村人の順）")]
+        [SerializeField] private GameObject[] villagerModels;
+        [SerializeField] private Material[] villagerMaterials;
+        [SerializeField] private RuntimeAnimatorController[] villagerControllers;
+
         [SerializeField] private RoleDefinition fallbackRole; // Result シーンを直接再生したとき
         [SerializeField] private GameBalance balance;          // 数値カードの最大値
 
@@ -72,25 +77,16 @@ namespace Team5.UI
                     SetNotice("らしさ達成", ClearResultText.ChiefLineOneLine(role));
                     break;
                 case GameResult.GameOverPeace:
-                    Set(Fog, peacePicture, Ink, Warning, Color.white,
-                        "あなたらしさを、確認しました。",
-                        "あなたが何を望んでいるのか、村にもよく分かりました。\nその望みは、この村では認められていません。",
-                        "平和度が0になりました。");
-                    SetNotice("不適合", "好きにしてよいとは言ったが、そこまでとは言っておらんよ。");
+                    Set(Fog, peacePicture, Ink, Warning, Color.white, "見つかった……", "", "");
+                    SetNotice("追放", "", $"除籍通知　本日をもって、村の名簿から除籍します。");
                     break;
                 case GameResult.GameOverTimeUp:
-                    Set(new Color(0.88f, 0.79f, 0.65f), timeUpPicture, Ink, Dark, Color.white,
-                        "明日も、あなたの役割が待っています。",
-                        "なりたかった自分のことは、また明日考えましょう。\n明日も、今日と同じ仕事が待っています。",
-                        "制限時間になりました。");
-                    SetNotice("本日終了", "夢は逃げんよ。明日もまず、村の仕事を頼むぞ。");
+                    Set(new Color(0.88f, 0.79f, 0.65f), timeUpPicture, Ink, Dark, Color.white, "日が沈んだ……", "", "");
+                    SetNotice("現状維持", "", $"現状維持通知　引き続き、{imposed}として登録します。");
                     break;
                 case GameResult.GameOverFaded:
-                    Set(Fog, fadedPicture, Ink, Stone, Color.white,
-                        "立派な村人になりました。",
-                        $"あなたは、期待されたとおりの{imposed}になりました。\nもう、自分が何になりたかったかで悩む必要はありません。",
-                        "個性が0になりました。");
-                    SetNotice("適応完了", "うむ。ようやく、お前らしくなったな。");
+                    Set(Fog, fadedPicture, Ink, Stone, Color.white, "色が消えた……", "", "");
+                    SetNotice("適合", "", $"適合証明　『{imposed}らしさ』のすべてに適合しました。");
                     break;
                 default:
                     Set(Shadow, timeUpPicture, Color.white, Dark, Color.white,
@@ -124,20 +120,56 @@ namespace Team5.UI
                     clearWoodButton, clearPlayerPrefab, role, summary, balance, heading.font, clearPortraitShader);
                 return;
             }
-            if (!clear && result != GameResult.None)
-            {
-                // ゲームオーバーは村役場から届く書類の形で出す
-                var photo = result == GameResult.GameOverPeace ? peacePicture : result == GameResult.GameOverFaded ? fadedPicture : timeUpPicture;
-                gameObject.AddComponent<GameOverNoticePresentation>().Show(result, role, summary, balance, heading.font, photo);
-                return;
-            }
+            Simplify(result, summary);
+            ShowStage(role, result);
             PlayEntrance(clear);
         }
 
-        private void SetNotice(string stamp, string chiefLine)
+        // 小見出し・説明の文・ラベルはやめて、見出しの一言と数字だけにする
+        private void Simplify(GameResult result, GameResultSummary summary)
+        {
+            labelChip.gameObject.SetActive(false);
+            line.gameObject.SetActive(false);
+            extra.gameObject.SetActive(false);
+            SetTitle("Individuality", "個性");
+            SetTitle("Peace", "平和度");
+            SetTitle("Tasks", "お題");
+            SetTitle("Caught", "発覚");
+            heading.resizeTextMaxSize = 64;
+            heading.fontSize = 64;
+        }
+
+        private void SetTitle(string card, string title)
+        {
+            if (transform.Find(card + "/Title") is Transform child && child.TryGetComponent(out Text text)) text.text = title;
+        }
+
+        // 平面の絵のかわりに、ゲームのモデルを並べた場面を出す
+        private void ShowStage(RoleDefinition role, GameResult result)
+        {
+            if (clearPlayerPrefab == null || picture == null || result == GameResult.None) return;
+            var villagers = new ResultCharacterPreview.Villager[villagerModels != null ? villagerModels.Length : 0];
+            for (int i = 0; i < villagers.Length; i++)
+            {
+                villagers[i].model = villagerModels[i];
+                villagers[i].material = villagerMaterials != null && i < villagerMaterials.Length ? villagerMaterials[i] : null;
+                villagers[i].controller = villagerControllers != null && i < villagerControllers.Length ? villagerControllers[i] : null;
+            }
+            picture.enabled = false;
+            var view = new GameObject("Stage3D", typeof(RectTransform), typeof(RawImage));
+            var rect = (RectTransform)view.transform;
+            rect.SetParent(picture.transform, false);
+            rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            view.GetComponent<RawImage>().raycastTarget = false;
+            view.AddComponent<ResultCharacterPreview>().Initialize(clearPlayerPrefab, role, clearPortraitShader, result, villagers);
+        }
+
+        // 結果の一行（クリアは村長の一言、ゲームオーバーは村役場の通知を 1 行で）
+        private void SetNotice(string stamp, string chiefLine, string notice = null)
         {
             labelText.text = stamp;
-            hint.text += "\n村長「" + chiefLine + "」";
+            hint.text = !string.IsNullOrEmpty(notice) ? notice : "村長「" + chiefLine + "」";
             hint.color = Ink;
         }
 

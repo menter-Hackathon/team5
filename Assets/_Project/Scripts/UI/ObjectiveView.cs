@@ -123,7 +123,7 @@ namespace Team5.UI
             Transform target;
             if (firstOpen == null)
             {
-                nextText = $"{goalName}が完成した！ 時間まで村にばれないように";
+                nextText = $"{goalName} 完成！";
                 target = null;
             }
             else Plan(firstOpen, inventory, out nextText, out target);
@@ -144,7 +144,7 @@ namespace Team5.UI
             {
                 var station = FindAnyObjectByType<CraftStation>();
                 target = station != null ? station.transform : null;
-                text = $"材料がそろった！ {AreaOf(target)}の作業台で\n「{recipe.displayName}」を作ろう\n（だれも見ていないときに）";
+                text = $"{AreaOf(target)}の作業台で「{recipe.displayName}」";
                 return;
             }
             foreach (var input in recipe.inputs)
@@ -165,22 +165,22 @@ namespace Team5.UI
                 if (pickup != null)
                 {
                     target = pickup.transform;
-                    text = $"{AreaOf(target)}で「{input.item.displayName}」を拾おう\n（見られていないときに）";
+                    text = $"{AreaOf(target)}で「{input.item.displayName}」";
                     return;
                 }
                 foreach (var task in role.imposedTasks)
                     if (task != null && task.rewardItem == input.item)
                     {
                         target = null;
-                        text = $"「{input.item.displayName}」は村長のお題「{task.title}」のごほうび。お題を待とう";
+                        text = $"お題「{task.title}」で「{input.item.displayName}」";
                         return;
                     }
                 target = null;
-                text = $"「{input.item.displayName}」をさがそう";
+                text = $"「{input.item.displayName}」";
                 return;
             }
             target = null;
-            text = $"「{recipe.displayName}」の材料をそろえよう";
+            text = $"「{recipe.displayName}」の材料";
         }
 
         // 服：まだ持っていない服は、どこで拾えるかを出す（着るとなりたい姿に近づく）
@@ -194,7 +194,7 @@ namespace Team5.UI
                 if (outfit == null || outfit.stage <= 0) continue;
                 string name = !string.IsNullOrEmpty(outfit.displayName) ? outfit.displayName : outfit.item != null ? outfit.item.displayName : outfit.outfitId;
                 if (outfits != null && outfits.IsWearing(outfit)) parts.Add($"<color=#8EE59A>◎{name}</color>");
-                else if (outfits != null && outfits.Owns(outfit)) parts.Add($"<color=#FFD23F>{name}（C で着る）</color>");
+                else if (outfits != null && outfits.Owns(outfit)) parts.Add($"<color=#FFD23F>{name}</color>");
                 else
                 {
                     var pickup = outfit.item != null ? NearestPickup(outfit.item) : null;

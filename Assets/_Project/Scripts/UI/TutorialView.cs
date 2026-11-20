@@ -100,8 +100,8 @@ namespace Team5.UI
                 cards.Add(new Card("ただし", $"「{imposed}らしくない」ところを村人に見られたら、\nすぐに村じゅうのうわさになってしまう。"));
             }
             cards.Add(new Card("今日の目標",
-                $"日が沈むまで（{minutes}分）に、\nだれにも見られずに <color=#FFD23F>{goalName}</color> を完成させよう！\n\n" +
-                $"<size=30>① 村長のお題をこなして、村を安心させる\n② 見られていない隙に、素材を集める\n③ {StationArea()}の作業台で、こっそり{Craft()}</size>"));
+                $"{minutes}分で <color=#FFD23F>{goalName}</color> を完成させよう\n\n" +
+                $"<size=30><color=#FFD23F>！</color> お題　　<color=#7CF08A>◆</color> 素材　　<color=#FA80C7>★</color> {StationArea()}の作業台</size>"));
             if (guide)
             {
             }
@@ -124,7 +124,7 @@ namespace Team5.UI
         private IEnumerator ControlsBanner()
         {
             banner.gameObject.SetActive(true);
-            bannerText.text = "<color=#FFD23F>WASD</color> / <color=#FFD23F>矢印キー</color> で歩いてみよう";
+            bannerText.text = "<color=#FFD23F>WASD</color> で歩こう";
             UiFx.Punch(this, banner, 0.06f, 0.25f);
             Vector3 start = context.Player != null ? context.Player.position : Vector3.zero;
             float t = 0f;
@@ -133,10 +133,9 @@ namespace Team5.UI
                 t += Time.deltaTime;
                 yield return null;
             }
-            bannerText.text = "<color=#FFD23F>E</color> 拾う・話す・作業台（長押しでお題の動作）　<color=#FFD23F>Tab</color> 持ち物　<color=#FFD23F>M</color> 地図　<color=#FFD23F>Esc</color> 一時停止\n" +
-                              "画面の矢印が次の行き先：<color=#FFD23F>！</color> お題　<color=#FA80C7>★</color> 目標";
+            bannerText.text = "<color=#FFD23F>Esc</color> で操作確認";
             UiFx.Punch(this, banner, 0.06f, 0.25f);
-            StartCoroutine(HideBannerLater(9f));
+            StartCoroutine(HideBannerLater(4f));
             yield return new WaitForSeconds(1.2f);
         }
 
@@ -182,7 +181,12 @@ namespace Team5.UI
             if (pauseRoot != null)
             {
                 bool paused = GameManager.Instance != null && GameManager.Instance.State == GameState.Paused;
-                if (pauseRoot.activeSelf != paused) pauseRoot.SetActive(paused);
+                if (pauseRoot.activeSelf != paused)
+                {
+                    pauseRoot.SetActive(paused);
+                    var events = UnityEngine.EventSystems.EventSystem.current;
+                    if (paused && events != null && resumeButton != null) events.SetSelectedGameObject(resumeButton.gameObject);
+                }
             }
             if (!guide || !introDone || context == null) return;
             var surveillance = context.Surveillance;
@@ -190,52 +194,40 @@ namespace Team5.UI
             {
                 if (surveillance.IsPlayerWatched && !wasWatched)
                     Tip("watched", "見られている！",
-                        "村人の足元の扇形が<color=#FF6A5A>赤</color>くなり、\n右上の目が開いたら、見られているしるし。\n\n" +
-                        "見られている間に <color=#FFD23F>素材を拾う・作業台で作る・道から外れる</color> と、\n「らしくない」ことがばれて <color=#FF6A5A>平和度 −25</color>。\n" +
-                        "お題をこなすのは、見られていても大丈夫。");
+                        "<color=#FF6A5A>赤い扇形</color>の中で\n拾う・作る・道から外れる → <color=#FF6A5A>平和度 −25</color>");
                 wasWatched = surveillance.IsPlayerWatched;
             }
             if (context.Timer != null && context.Timer.IsRunning && context.Timer.Remaining <= 60f && context.Timer.Remaining > 1f)
-                Tip("last_minute", "日が沈むまで、あと1分！", $"{goalName}はできそう？\n右の「次：」を見て、急ごう。");
+                Tip("last_minute", "あと1分！", $"<color=#FFD23F>{goalName}</color>");
         }
 
         private void OnTaskAssigned(TaskInstance task)
         {
             if (task == null || task.Definition == null) return;
             var def = task.Definition;
-            string how = def.type switch
-            {
-                TaskType.ActionAtSpot => $"地図の<color=#FFD23F>！</color>の場所へ行き、E を長押し。",
-                TaskType.TalkToNpc => $"<color=#FFD23F>{NpcNameplateView.NameOf(def.targetSpotId)}</color>（頭の上の名前が金色の人）に近づいて、E で話しかける。",
-                _ => $"「{(def.requiredItem != null ? def.requiredItem.displayName : "頼まれた物")}」を{def.requiredCount}つ集めて、村長の家で E。\n{ItemWhere(def.requiredItem)}",
-            };
             Tip("task", "村長のお題",
-                $"左のカード：<color=#FFD23F>{def.title}</color>\n{how}\n画面の<color=#FFD23F>黄色の矢印</color>が行き先を指すよ。\n\n" +
-                "こなすと村は安心する（<color=#8EE59A>平和度 ＋</color>）。\nでも、自分の色はうすくなる（<color=#FF9A6A>個性 −</color>）。\n" +
-                "時間切れになると平和度が下がるよ。");
+                $"<color=#FFD23F>！ {def.title}</color>\n\n" +
+                "<color=#8EE59A>平和度 ＋</color>　<color=#FF9A6A>個性 −</color>");
         }
 
         private void OnTaskCompleted(TaskInstance task)
         {
             string reward = task != null && task.Definition != null && task.Definition.rewardItem != null
-                ? $"\nごほうびに「{task.Definition.rewardItem.displayName}」をもらった！ 目標の材料になる。" : "";
+                ? $"\n<color=#7CF08A>◆</color> {task.Definition.rewardItem.displayName}" : "";
             Tip("task_done", "お題をこなした",
-                $"村長は満足そうだ。平和度が上がった。\nでも、{imposed}らしくしたぶん、自分の色が少しうすくなった。{reward}\n\n" +
-                $"次のお題が出るまでの間に、{wanted}への準備を進めよう。" + NextLine());
+                $"<color=#8EE59A>平和度 ＋</color>　<color=#FF9A6A>個性 −</color>{reward}" + NextLine());
         }
 
         private void OnTaskFailed(TaskInstance task)
         {
-            Tip("task_fail", "お題に間に合わなかった……",
-                "村長はがっかりしている（<color=#FF6A5A>平和度 −</color>）。平和度が 0 になると、村から追い出されてゲームオーバー。\n\n" +
-                $"<color=#FFD23F>{Interval()}秒ほどで次のお題が出る</color>。それまでは、自分の目標を進めよう。" + NextLine());
+            Tip("task_fail", "間に合わなかった……",
+                "<color=#FF6A5A>平和度 −</color>" + NextLine());
         }
 
         private void OnCaught(NPC.VisionSensor by)
         {
-            Tip("caught", "見つかってしまった！",
-                $"「{imposed}らしくない」ところを見られた（<color=#FF6A5A>平和度 −25</color>）。\n\n" +
-                "平和度が 0 になると、村から追い出されてゲームオーバー。\n扇形の外に出てから、もう一度やろう。" + NextLine());
+            Tip("caught", "見つかった！",
+                "<color=#FF6A5A>平和度 −25</color>" + NextLine());
         }
 
         private void OnInventoryChanged()
@@ -247,9 +239,7 @@ namespace Team5.UI
                 foreach (var input in recipe.inputs)
                     if (input.item != null && context.Inventory.Count(input.item) > 0)
                     {
-                        Tip("pickup", "素材を手に入れた！",
-                            "右の「目標」に、集めた数が出るよ（Tab で持ち物も見られる）。\n\n" +
-                            "材料は、見られていない隙に集めよう。" + NextLine());
+                        Tip("pickup", "素材を手に入れた！", NextLine().TrimStart('\n'));
                         goto checkReady;
                     }
             }
@@ -259,16 +249,14 @@ namespace Team5.UI
                     if (o != null && o.item != null && context.Inventory.Count(o.item) > 0)
                     {
                         Tip("outfit", "服を手に入れた！",
-                            $"「{o.displayName}」を着ると、{wanted}らしい見た目になる（<color=#8EE59A>個性 ＋</color>）。\n\n" +
-                            "だれも見ていないときに <color=#FFD23F>C</color>（または Tab →「着替え」）で着替えよう。\n見られている間に着替えると、ばれてしまう。");
+                            $"<color=#FFD23F>{o.displayName}</color>　<color=#FFD23F>C</color> で着替え（<color=#8EE59A>個性 ＋</color>）");
                         break;
                     }
             foreach (var recipe in role.recipes)
                 if (recipe != null && context.Inventory.Has(recipe.inputs))
                 {
                     Tip("ready", "材料がそろった！",
-                        $"{StationArea()}の作業台へ行き、E で「{recipe.displayName}」を作ろう\n（<color=#FA80C7>ピンクの矢印</color>の先）。\n\n" +
-                        "作っている間に見られると、中断して<color=#FF6A5A>平和度 −25</color>。\nまわりに村人がいないのを確かめてから！");
+                        $"<color=#FA80C7>★</color> {StationArea()}の作業台で「{recipe.displayName}」");
                     break;
                 }
         }
@@ -282,7 +270,7 @@ namespace Team5.UI
             int max = role != null && role.outfits != null ? role.outfits.Count : 0;
             int stage = controller != null ? controller.CurrentStage : 0;
             banner.gameObject.SetActive(true);
-            bannerText.text = $"<size=38><color=#FFD23F>{outfit.displayName}</color> を着た！</size>\n{wantedName}らしくなってきた（見た目 {stage} / {max}）";
+            bannerText.text = $"<size=38><color=#FFD23F>{outfit.displayName}</color></size>　{stage} / {max}";
             UiFx.Punch(this, banner, 0.12f, 0.35f);
             StopCoroutine(nameof(HideBannerLater));
             StartCoroutine(HideBannerLater(3.5f));
@@ -292,16 +280,14 @@ namespace Team5.UI
         {
             if (role != null && recipe != null && recipe.output == role.goalItem) return; // 完成のときはクリアの演出に任せる
             Tip("crafted", "こっそり作れた！",
-                $"{wanted}に近づいた（左上の<color=#FFD23F>進み具合 ＋</color>）。\n自分の色も濃くなった（<color=#8EE59A>個性 ＋</color>）。\n\n" +
-                $"進み具合が 100 になれば、{wanted}になれる！" + NextLine());
+                $"<color=#FFD23F>{wanted} ＋</color>　<color=#8EE59A>個性 ＋</color>" + NextLine());
         }
 
         private void OnParameterChanged(ParameterType type, float before, float after)
         {
             if (type == ParameterType.Individuality && after < 25f && after < before)
-                Tip("faded", "自分の色がうすくなってきた……",
-                    $"{imposed}らしくしすぎると、本当の自分を見失ってしまう。\n個性が 0 になるとゲームオーバー（20 未満だと足も遅くなる）。\n\n" +
-                    $"こっそり{Craft()}と、色が戻るよ。");
+                Tip("faded", "個性がうすい……",
+                    $"<color=#FF9A6A>個性 0</color> でおしまい");
         }
 
         private static string Dream(RoleDefinition role, string wanted, string goalName)
@@ -381,7 +367,7 @@ namespace Team5.UI
                 titleText.text = cards[i].title;
                 bodyText.text = cards[i].body;
                 pageText.text = cards.Count > 1 ? $"{i + 1} / {cards.Count}" : "";
-                hintText.text = skippable && cards.Count > 1 && i < cards.Count - 1 ? "Enter / Space / クリックで次へ　　Esc でとばす" : "Enter / Space / クリックで続ける";
+                hintText.text = skippable && cards.Count > 1 && i < cards.Count - 1 ? "▶ Enter　　Esc スキップ" : "▶ Enter";
                 UiFx.Punch(this, card, 0.05f, 0.25f);
 
                 yield return new WaitForSecondsRealtime(0.4f); // 連打で飛ばしすぎないように
@@ -470,20 +456,100 @@ namespace Team5.UI
             bannerText = MakeText(banner, "Text", 26, new Vector2(20f, -106f), new Vector2(-20f, -4f), TextAnchor.MiddleCenter);
             banner.gameObject.SetActive(false);
 
-            // 一時停止
+            // 一時停止（Esc）。操作の一覧と、再開・タイトルへ
+            pauseRoot = BuildPauseMenu(canvasGo.transform);
+            pauseRoot.SetActive(false);
+        }
+
+        private static readonly Color Gold = new Color(1f, 0.82f, 0.24f);
+        private static readonly Color Parchment = new Color(0.96f, 0.91f, 0.8f);
+        private static readonly Color Wood = new Color(0.4f, 0.27f, 0.17f, 0.95f);
+
+        private static readonly string[,] Controls =
+        {
+            { "WASD / 矢印", "移動" },
+            { "E", "拾う・話す・作業台" },
+            { "E 長押し", "お題" },
+            { "Tab", "持ち物" },
+            { "C", "着替え" },
+            { "M", "地図" },
+            { "Esc", "一時停止" },
+        };
+
+        private Button resumeButton;
+
+        private GameObject BuildPauseMenu(Transform parent)
+        {
             var pause = new GameObject("Pause", typeof(RectTransform), typeof(Image));
-            pause.transform.SetParent(canvasGo.transform, false);
+            pause.transform.SetParent(parent, false);
             var pauseRect = (RectTransform)pause.transform;
             pauseRect.anchorMin = Vector2.zero; pauseRect.anchorMax = Vector2.one;
             pauseRect.offsetMin = pauseRect.offsetMax = Vector2.zero;
-            pause.GetComponent<Image>().color = new Color(0.03f, 0.02f, 0.05f, 0.6f);
-            var pauseTitle = MakeText(pauseRect, "Title", 72, new Vector2(0f, -520f), new Vector2(0f, -400f), TextAnchor.MiddleCenter);
-            pauseTitle.text = "一時停止中";
-            pauseTitle.color = new Color(1f, 0.82f, 0.24f);
-            var pauseHint = MakeText(pauseRect, "Hint", 34, new Vector2(0f, -600f), new Vector2(0f, -530f), TextAnchor.MiddleCenter);
-            pauseHint.text = "Esc でゲームに戻る";
-            pauseRoot = pause;
-            pauseRoot.SetActive(false);
+            pause.GetComponent<Image>().color = new Color(0.12f, 0.07f, 0.03f, 0.7f);
+
+            int rows = Controls.GetLength(0);
+            float rowHeight = 58f;
+            float height = 150f + rows * rowHeight + 150f;
+            var panelImage = new GameObject("Panel", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            panelImage.transform.SetParent(pauseRect, false);
+            var panel = panelImage.rectTransform;
+            panel.anchorMin = panel.anchorMax = new Vector2(0.5f, 0.5f);
+            panel.sizeDelta = new Vector2(760f, height);
+            panelImage.sprite = panelSprite;
+            panelImage.type = panelSprite != null ? Image.Type.Sliced : Image.Type.Simple;
+            panelImage.color = panelSprite != null ? Color.white : new Color(0.26f, 0.17f, 0.11f, 0.96f);
+
+            var title = MakeText(panel, "Title", 60, new Vector2(40f, -120f), new Vector2(-40f, -30f), TextAnchor.MiddleCenter);
+            title.text = "一時停止";
+            title.color = Gold;
+
+            for (int i = 0; i < rows; i++)
+            {
+                float top = -140f - i * rowHeight;
+                var key = MakeText(panel, "Key", 32, new Vector2(90f, top - rowHeight), new Vector2(-400f, top), TextAnchor.MiddleRight);
+                key.text = Controls[i, 0];
+                key.color = Gold;
+                var action = MakeText(panel, "Action", 32, new Vector2(400f, top - rowHeight), new Vector2(-60f, top), TextAnchor.MiddleLeft);
+                action.text = Controls[i, 1];
+                action.color = Parchment;
+            }
+
+            float buttonsY = -150f - rows * rowHeight - 50f;
+            resumeButton = MakeButton(panel, "再開", new Vector2(-150f, buttonsY), () =>
+            {
+                if (GameManager.Instance != null) GameManager.Instance.SetPaused(false);
+            });
+            var titleButton = MakeButton(panel, "タイトルへ", new Vector2(150f, buttonsY), () =>
+            {
+                if (GameManager.Instance != null) GameManager.Instance.ReturnToTitle();
+            });
+            resumeButton.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnRight = titleButton, selectOnLeft = titleButton };
+            titleButton.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnRight = resumeButton, selectOnLeft = resumeButton };
+
+            pause.SetActive(false);
+            return pause;
+        }
+
+        private Button MakeButton(RectTransform parent, string label, Vector2 position, UnityEngine.Events.UnityAction onClick)
+        {
+            var image = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button)).GetComponent<Image>();
+            image.transform.SetParent(parent, false);
+            var rect = image.rectTransform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = new Vector2(260f, 76f);
+            image.color = Wood;
+            var button = image.GetComponent<Button>();
+            var colors = button.colors;
+            colors.highlightedColor = new Color(1f, 0.95f, 0.8f);
+            colors.selectedColor = new Color(1f, 0.92f, 0.7f);
+            colors.pressedColor = new Color(0.85f, 0.8f, 0.7f);
+            button.colors = colors;
+            button.onClick.AddListener(onClick);
+            var text = MakeText(rect, "Text", 34, new Vector2(0f, -76f), new Vector2(0f, 0f), TextAnchor.MiddleCenter);
+            text.text = label;
+            text.color = Parchment;
+            return button;
         }
 
         private Text MakeText(RectTransform parent, string name, int size, Vector2 offsetMin, Vector2 offsetMax, TextAnchor anchor)

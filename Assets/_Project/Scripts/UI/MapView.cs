@@ -130,13 +130,14 @@ namespace Team5.UI
             miniImage.texture = snapshot;
             miniImage.raycastTarget = false;
 
-            var keyHint = NewText("M・クリック：地図を広げる", frame, 20, TextAnchor.UpperCenter);
+            var keyHint = NewText("M", frame, 20, TextAnchor.UpperCenter);
             keyHint.rectTransform.anchorMin = keyHint.rectTransform.anchorMax = new Vector2(0.5f, 1f);
             keyHint.rectTransform.pivot = new Vector2(0.5f, 0f);
             keyHint.rectTransform.anchoredPosition = new Vector2(0f, 4f);
             var hintOutline = keyHint.gameObject.AddComponent<Outline>();
             hintOutline.effectColor = new Color(0f, 0f, 0f, 0.8f);
             keyHint.rectTransform.sizeDelta = new Vector2(200f, 28f);
+            keyHint.gameObject.SetActive(false); // 操作は Esc の一時停止で見られる
 
             // 村全体の地図（M で開く）
             fullPanel = NewRect("FullMap", canvasGo.transform);
@@ -155,7 +156,7 @@ namespace Team5.UI
             fullImage.texture = snapshot;
             fullImage.raycastTarget = false;
 
-            var legend = NewText("<color=#FFE15A>▲</color> 自分　<color=#FF5A4A>●</color> 村人（赤：見られている）　<color=#FFD23C>！</color> お題　<color=#7CF08A>◆</color> 素材　<color=#FFA040>■</color> 作業台　　M・クリックで閉じる",
+            var legend = NewText("<color=#FFE15A>▲</color> 自分　<color=#FF5A4A>●</color> 村人　<color=#FFD23C>！</color> お題　<color=#7CF08A>◆</color> 素材　<color=#FFA040>■</color> 作業台",
                 fullPanel, 22, TextAnchor.MiddleCenter);
             legend.supportRichText = true;
             legend.rectTransform.anchorMin = legend.rectTransform.anchorMax = new Vector2(0.5f, 0f);

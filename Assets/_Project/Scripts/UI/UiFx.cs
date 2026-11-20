@@ -8,6 +8,20 @@ namespace Team5.UI
     // UI の小さな動き（ポン・ゆれ・光る・すべり込み）。同じ対象に重ねて呼ぶと前の動きを止めてやり直す
     public static class UiFx
     {
+        // 窓の見出しにある「（Tab で閉じる）」などの操作の説明を消す（操作は Esc の一時停止で見られる）
+        private static readonly string[] KeyNotes = { "（Tab で閉じる）", "（E で閉じる）", "（Tab）", "（C）" };
+
+        public static void StripKeyNotes(Transform root)
+        {
+            if (root == null) return;
+            foreach (var text in root.GetComponentsInChildren<UnityEngine.UI.Text>(true))
+            {
+                if (text.gameObject.name == "CloseHint") { text.gameObject.SetActive(false); continue; }
+                foreach (var note in KeyNotes)
+                    if (text.text.Contains(note)) text.text = text.text.Replace(note, "");
+            }
+        }
+
         private static readonly Dictionary<(Object, string), Coroutine> running = new(); // （対象, 動きの種類）ごと
         private static readonly Dictionary<RectTransform, Vector2> homes = new(); // 動かす前の位置（途中でやり直してもずれないように）
 
