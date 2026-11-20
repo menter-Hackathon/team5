@@ -482,6 +482,20 @@ namespace Team5.UI
             pauseTitle.color = new Color(1f, 0.82f, 0.24f);
             var pauseHint = MakeText(pauseRect, "Hint", 34, new Vector2(0f, -600f), new Vector2(0f, -530f), TextAnchor.MiddleCenter);
             pauseHint.text = "Esc でゲームに戻る";
+            // ゲームをやめてタイトルへ戻るボタン
+            var quit = new GameObject("QuitButton", typeof(RectTransform), typeof(Image), typeof(Button));
+            quit.transform.SetParent(pauseRect, false);
+            var quitRect = (RectTransform)quit.transform;
+            quitRect.anchorMin = quitRect.anchorMax = new Vector2(0.5f, 1f);
+            quitRect.sizeDelta = new Vector2(460f, 90f);
+            quitRect.anchoredPosition = new Vector2(0f, -690f);
+            quit.GetComponent<Image>().color = new Color(1f, 0.78f, 0.24f);
+            quit.GetComponent<Button>().onClick.AddListener(() => { if (GameManager.Instance != null) GameManager.Instance.ReturnToTitle(); });
+            var quitText = MakeText(quitRect, "Text", 36, Vector2.zero, Vector2.zero, TextAnchor.MiddleCenter);
+            quitText.rectTransform.anchorMin = Vector2.zero; quitText.rectTransform.anchorMax = Vector2.one;
+            quitText.rectTransform.offsetMin = quitText.rectTransform.offsetMax = Vector2.zero;
+            quitText.text = "ゲームをやめてタイトルへ";
+            quitText.color = new Color(0.23f, 0.21f, 0.19f);
             pauseRoot = pause;
             pauseRoot.SetActive(false);
         }

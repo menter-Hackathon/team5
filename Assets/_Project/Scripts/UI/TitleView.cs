@@ -17,6 +17,9 @@ namespace Team5.UI
 
         private GameObject rolePanel;
 
+        // 結果画面の「もう一度あそぶ」から戻ったときは、職業選びから始める
+        public static bool OpenRolesOnLoad;
+
         private void Start()
         {
             // ロゴ → ボタン → チェック → 補足 の順にすべり込む
@@ -28,6 +31,7 @@ namespace Team5.UI
             }
             if (titlePanel != null && titlePanel.transform.Find("StartButton") is RectTransform start) StartCoroutine(Breathe(start));
             SelectStart();
+            if (OpenRolesOnLoad) { OpenRolesOnLoad = false; OnStartPressed(); }
         }
 
         // 「入村してみる」をゆっくり脈打たせて、押すところだと分かるようにする
