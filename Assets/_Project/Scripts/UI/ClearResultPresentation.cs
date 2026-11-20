@@ -25,13 +25,12 @@ namespace Team5.UI
 
             string wanted = role != null && !string.IsNullOrWhiteSpace(role.displayName) ? role.displayName : "なりたい自分";
             string imposed = role != null && !string.IsNullOrWhiteSpace(role.imposedRoleName) ? role.imposedRoleName : "勇者";
-            bool ramen = role != null && role.roleId == "ramen_chef";
             // 見出しの一言・数字・村長の一言だけにする
             MakeText("ClearHeading", wanted + "になれた！", font, 64, 850, 200, 900, 120);
             int seconds = Mathf.Max(0, Mathf.RoundToInt(summary.elapsedSeconds));
             MakeText("ClearRecords", $"個性 {Mathf.RoundToInt(summary.individuality)}　平和度 {Mathf.RoundToInt(summary.peace)}　{seconds / 60}:{seconds % 60:00}",
                 font, 34, 870, 380, 850, 70);
-            MakeText("ClearChief", ramen ? "村長「……まあ、一杯いただこうか。」" : "村長「……それが、お前の選んだ道か。」",
+            MakeText("ClearChief", "村長「" + ClearResultText.ChiefLineOneLine(role) + "」",
                 font, 30, 870, 560, 850, 70);
             StyleButton("RetryButton", "もう一度あそぶ", wood, 850);
             StyleButton("TitleButton", "タイトルへ", wood, 1330);

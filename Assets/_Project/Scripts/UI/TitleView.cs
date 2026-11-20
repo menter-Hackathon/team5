@@ -158,6 +158,8 @@ namespace Team5.UI
                 card.anchoredPosition = new Vector2(-total * 0.5f + width * 0.5f + i * (width + gap), -20f);
                 var bg = card.gameObject.AddComponent<UnityEngine.UI.Image>();
                 bg.color = new Color(0.26f, 0.17f, 0.11f, 0.96f);
+                // Button より先に付けて、押した瞬間に「もう選ばれていたか」を覚える
+                var press = card.gameObject.AddComponent<RoleCardPress>();
                 var button = card.gameObject.AddComponent<UnityEngine.UI.Button>();
                 var colors = button.colors;
                 colors.normalColor = Color.white;
@@ -166,7 +168,14 @@ namespace Team5.UI
                 colors.pressedColor = new Color(0.85f, 0.8f, 0.7f);
                 button.colors = colors;
                 var picked = role;
-                button.onClick.AddListener(() => StartWith(picked));
+                // マウスは 1 回目で選ぶだけ、選んだカードをもう一度押したら決定（Enter はそのまま決定）
+                button.onClick.AddListener(() =>
+                {
+                    var mouse = UnityEngine.InputSystem.Mouse.current;
+                    bool byMouse = mouse != null && mouse.leftButton.wasReleasedThisFrame;
+                    if (byMouse && !press.WasSelected) return;
+                    StartWith(picked);
+                });
 
                 var bar = NewRect("Bar", card);
                 bar.anchorMin = new Vector2(0f, 1f); bar.anchorMax = new Vector2(1f, 1f);
@@ -192,21 +201,28 @@ namespace Team5.UI
                 var frame = NewRect("Frame", card);
                 frame.anchorMin = Vector2.zero; frame.anchorMax = Vector2.one;
                 frame.offsetMin = new Vector2(-8f, -8f); frame.offsetMax = new Vector2(8f, 8f);
-                var frameOutline = frame.gameObject.AddComponent<UnityEngine.UI.Outline>();
-                var frameImage = frame.gameObject.AddComponent<UnityEngine.UI.Image>();
-                frameImage.color = new Color(0f, 0f, 0f, 0f);
-                frameImage.raycastTarget = false;
-                frameOutline.effectColor = role.roleColor;
-                frameOutline.effectDistance = new Vector2(7f, -7f);
-                frameOutline.useGraphicAlpha = false;
+                // 枠は 4 本の線で描く（Outline だとカード全体がロールの色で塗られて、職業名が見えなくなる）
+                for (int edge = 0; edge < 4; edge++)
+                {
+                    var line = NewRect("Edge", frame);
+                    bool vertical = edge >= 2;
+                    line.anchorMin = vertical ? new Vector2(edge == 2 ? 0f : 1f, 0f) : new Vector2(0f, edge == 0 ? 0f : 1f);
+                    line.anchorMax = vertical ? new Vector2(edge == 2 ? 0f : 1f, 1f) : new Vector2(1f, edge == 0 ? 0f : 1f);
+                    line.pivot = new Vector2(edge == 3 ? 1f : 0f, edge == 1 ? 1f : 0f);
+                    line.sizeDelta = vertical ? new Vector2(8f, 0f) : new Vector2(0f, 8f);
+                    line.anchoredPosition = Vector2.zero;
+                    var lineImage = line.gameObject.AddComponent<UnityEngine.UI.Image>();
+                    lineImage.color = role.roleColor; lineImage.raycastTarget = false;
+                }
                 frame.SetAsFirstSibling();
                 var glow = NewRect("Glow", frame);
                 glow.anchorMin = Vector2.zero; glow.anchorMax = Vector2.one; glow.offsetMin = glow.offsetMax = Vector2.zero;
                 var glowImage = glow.gameObject.AddComponent<UnityEngine.UI.Image>();
-                var c = role.roleColor; glowImage.color = new Color(c.r, c.g, c.b, 0.22f); glowImage.raycastTarget = false;
-                var hint = NewText(card, font, "▶ Enter で決定", 26, Color.white);
+                var c = role.roleColor; glowImage.color = new Color(c.r, c.g, c.b, 0.12f); glowImage.raycastTarget = false;
+                glow.SetAsFirstSibling();
+                var hint = NewText(card, font, "▶ もう一度クリック（Enter）で決定", 26, Color.white);
                 hint.rectTransform.anchorMin = hint.rectTransform.anchorMax = new Vector2(0.5f, 0f);
-                hint.rectTransform.sizeDelta = new Vector2(360f, 40f);
+                hint.rectTransform.sizeDelta = new Vector2(480f, 40f);
                 hint.rectTransform.anchoredPosition = new Vector2(0f, -34f);
                 frame.gameObject.SetActive(false); hint.gameObject.SetActive(false);
                 roleCards.Add((card, frame.gameObject, hint.gameObject));
@@ -291,6 +307,18 @@ namespace Team5.UI
         {
             settingsPanel.SetActive(false);
             titlePanel.SetActive(true);
+        }
+    }
+
+    // 職業カードを押した瞬間に、そのカードがもう選ばれていたかを覚えておく（1 回目は選ぶだけ、2 回目で決定）
+    internal class RoleCardPress : MonoBehaviour, UnityEngine.EventSystems.IPointerDownHandler
+    {
+        public bool WasSelected { get; private set; }
+
+        public void OnPointerDown(UnityEngine.EventSystems.PointerEventData eventData)
+        {
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            WasSelected = es != null && es.currentSelectedGameObject == gameObject;
         }
     }
 }

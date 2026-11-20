@@ -70,28 +70,23 @@ namespace Team5.UI
             switch (result)
             {
                 case GameResult.Clear:
-                    bool ramenChef = role != null && role.roleId == "ramen_chef";
                     Set(new Color(0.98f, 0.93f, 0.81f), clearPicture, Ink, Accent, Ink,
                         "これが、わたしらしさ。",
-                        $"{imposed}になるはずだった。\n" + (ramenChef
-                            ? "けれど、いま手にしているのは、自分で作った一杯だ。"
-                            : "けれど、いまここにいるのは、自分で選んだわたしだ。"),
+                        $"{imposed}になるはずだった。\n" + ClearResultText.Story(role),
                         $"なりたかった自分　{wanted}");
-                    SetNotice("らしさ達成", ramenChef
-                        ? "……まあ、一杯くらいは、いただこうか。"
-                        : "……それが、お前の選んだ道か。");
+                    SetNotice("らしさ達成", ClearResultText.ChiefLineOneLine(role));
                     break;
                 case GameResult.GameOverPeace:
                     Set(Fog, peacePicture, Ink, Warning, Color.white, "見つかった……", "", "");
-                    SetNotice("不適合", "好きにしてよいとは言ったが、そこまでとは言っておらんよ。");
+                    SetNotice("追放", "", $"除籍通知　本日をもって、村の名簿から除籍します。");
                     break;
                 case GameResult.GameOverTimeUp:
                     Set(new Color(0.88f, 0.79f, 0.65f), timeUpPicture, Ink, Dark, Color.white, "日が沈んだ……", "", "");
-                    SetNotice("本日終了", "夢は逃げんよ。明日もまず、村の仕事を頼むぞ。");
+                    SetNotice("現状維持", "", $"現状維持通知　引き続き、{imposed}として登録します。");
                     break;
                 case GameResult.GameOverFaded:
                     Set(Fog, fadedPicture, Ink, Stone, Color.white, "色が消えた……", "", "");
-                    SetNotice("適応完了", "うむ。ようやく、お前らしくなったな。");
+                    SetNotice("適合", "", $"適合証明　『{imposed}らしさ』のすべてに適合しました。");
                     break;
                 default:
                     Set(Shadow, timeUpPicture, Color.white, Dark, Color.white,
@@ -170,10 +165,11 @@ namespace Team5.UI
             view.AddComponent<ResultCharacterPreview>().Initialize(clearPlayerPrefab, role, clearPortraitShader, result, villagers);
         }
 
-        private void SetNotice(string stamp, string chiefLine)
+        // 結果の一行（クリアは村長の一言、ゲームオーバーは村役場の通知を 1 行で）
+        private void SetNotice(string stamp, string chiefLine, string notice = null)
         {
             labelText.text = stamp;
-            hint.text = "村長「" + chiefLine + "」";
+            hint.text = !string.IsNullOrEmpty(notice) ? notice : "村長「" + chiefLine + "」";
             hint.color = Ink;
         }
 
