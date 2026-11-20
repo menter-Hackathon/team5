@@ -64,8 +64,9 @@
 
 | 行動 | 使う場所 | 必要なもの | 結果 |
 |---|---|---|---|
-| ギターをゲットする | 作業台 `barn` | 木材 `wood` ×2、糸 `string` ×1 | リュート `lute` |
-| 曲を作る | 作業台 `barn` | リュート `lute` ×1、紙 `paper` ×1 | はじめての曲 `original_song`（Goal） |
+| 楽譜を書く | 作業台 `barn` | 紙 `paper` ×1、鉛筆 `pencil` ×1 | 楽譜 `sheet_music`（進捗30） |
+| 演奏準備 | 作業台 `barn` | チューナー `tuner` ×1、アンプ `amplifier` ×1 | 演奏準備 `performance_setup`（進捗30） |
+| 初めての曲で演奏 | 作業台 `barn` | 楽譜 `sheet_music` ×1、演奏準備 `performance_setup` ×1 | はじめての曲 `original_song`（Goal・進捗40） |
 | 派手なジャケットに着替える | どこでも（見られていない所） | ライブジャケット `band_jacket` ×1 | 見た目が段階 1〜2 |
 
 ---

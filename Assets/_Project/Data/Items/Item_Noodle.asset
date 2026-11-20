@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Item_Noodle
   m_EditorClassIdentifier: 
   itemId: noodle
-  displayName: "\u9EBA"
+  displayName: "\u624B\u6253\u3061\u9EBA"
   description: "\u3053\u3063\u305D\u308A\u6253\u3063\u305F\u624B\u6253\u3061\u9EBA"
   category: 1
   icon: {fileID: 0}

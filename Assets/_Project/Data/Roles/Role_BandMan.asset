@@ -22,7 +22,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8d8a24de8983a4d52866bcb02ceb49df, type: 2}
   - {fileID: 11400000, guid: 3bce8da3b2e5c43278efdeac8fa55475, type: 2}
   recipes:
-  - {fileID: 11400000, guid: a609457a022cb4a4791a327d69df3233, type: 2}
+  - {fileID: 11400000, guid: c98c386b0cd04e748b104f5c9d1f0233, type: 2}
+  - {fileID: 11400000, guid: 0072f389403a4c8d9945649817bfe1f8, type: 2}
   - {fileID: 11400000, guid: f4d5014bd9b8f41a681ea4f29e8097db, type: 2}
   goalItem: {fileID: 11400000, guid: 462913fcc178a411cb23c625cb1d6d92, type: 2}
   outfits: []
