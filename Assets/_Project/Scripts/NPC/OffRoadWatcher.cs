@@ -58,6 +58,21 @@ namespace Team5.NPC
                         }
                     if (keep) dst[y * width + x] = 1;
                 }
+            // 拾う物・お題の場所・作業台のまわり（元から道あつかいの所）は削らない
+            int keepR = Mathf.CeilToInt(3f / cellSize);
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (!(mb is Team5.Player.IInteractable)) continue;
+                int cx = Mathf.FloorToInt((mb.transform.position.x - origin.x) / cellSize);
+                int cy = Mathf.FloorToInt((mb.transform.position.z - origin.y) / cellSize);
+                for (int dy = -keepR; dy <= keepR; dy++)
+                    for (int dx = -keepR; dx <= keepR; dx++)
+                    {
+                        int xx = cx + dx, yy = cy + dy;
+                        if (xx < 0 || yy < 0 || xx >= width || yy >= height || dx * dx + dy * dy > keepR * keepR) continue;
+                        if (src[yy * width + xx] != 0) dst[yy * width + xx] = 1;
+                    }
+            }
             mask = dst;
         }
 
