@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0e8a372ece95754d83e719ccf39c019, type: 3}
+  m_Name: Outfit_LibrarianBeret
+  m_EditorClassIdentifier: 
+  outfitId: librarian_beret
+  displayName: "\u30D9\u30EC\u30FC\u5E3D\u3068\u4E38\u773C\u93E1"
+  item: {fileID: 11400000, guid: b3b63b734ff864dfca9edcb4fd8fb549, type: 2}
+  stage: 2
+  prefab: {fileID: 8001355475741528315, guid: 7eefa94e05ddb43db8557b2bbcd6a177, type: 3}
+  attachPoint: Head
+  individualityReward: 10
