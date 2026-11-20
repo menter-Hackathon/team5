@@ -85,7 +85,7 @@ namespace Team5.NPC
 
             bool off = !IsRoad(context.Player.position);
             offTime = off ? offTime + Time.deltaTime : 0f;
-            IsOff = offTime >= graceSeconds;
+            IsOff = off && offTime >= graceSeconds; // graceSeconds が 0 でも、道の上なら外れていない
             if (!IsOff) { punished = false; return; }
 
             var surveillance = context.Surveillance;
