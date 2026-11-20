@@ -28,7 +28,7 @@ Shader "Team5/ClearPortrait"
 
             Blend Off
             ZWrite On
-            Cull Back
+            Cull Off // 軽くしたモデルのすき間から背景が白く透けないよう、裏面も描く（裏面は法線を反転）
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -75,7 +75,7 @@ Shader "Team5/ClearPortrait"
                 return output;
             }
 
-            half4 frag(Varyings input) : SV_Target
+            half4 frag(Varyings input, bool isFrontFace : SV_IsFrontFace) : SV_Target
             {
                 half individuality = saturate(_Individuality);
                 half3 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).rgb * _BaseColor.rgb;
@@ -89,7 +89,7 @@ Shader "Team5/ClearPortrait"
 
                 // 陰は2段
                 Light mainLight = GetMainLight();
-                half3 normalWS = normalize(input.normalWS);
+                half3 normalWS = normalize(input.normalWS) * (isFrontFace ? 1.0 : -1.0);
                 half ndotl = dot(normalWS, mainLight.direction);
                 half lit = step(0.0, ndotl);
                 half3 shadowed = color * lerp(half3(1, 1, 1), _ShadowColor.rgb, _ShadowStrength);

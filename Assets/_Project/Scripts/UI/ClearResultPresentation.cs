@@ -25,18 +25,15 @@ namespace Team5.UI
 
             string wanted = role != null && !string.IsNullOrWhiteSpace(role.displayName) ? role.displayName : "なりたい自分";
             string imposed = role != null && !string.IsNullOrWhiteSpace(role.imposedRoleName) ? role.imposedRoleName : "勇者";
-            bool ramen = role != null && role.roleId == "ramen_chef";
             MakeText("ClearHeading", "これが、わたしらしさ。", font, 53, 850, 125, 900, 95);
-            MakeText("ClearStory", imposed + "になるはずだった。\n" + (ramen
-                ? "けれど、いま手にしているのは、自分で作った一杯だ。"
-                : "けれど、いまここにいるのは、自分で選んだわたしだ。"), font, 28, 870, 245, 850, 105);
+            MakeText("ClearStory", imposed + "になるはずだった。\n" + ClearResultText.Story(role), font, 28, 870, 245, 850, 105);
             MakeText("ClearRole", "なりたかった自分　" + wanted, font, 32, 870, 365, 850, 55);
             MakeText("ClearAchievement", $"なりたい自分への達成率　{AchievementPercent(summary.roleProgress, balance != null ? balance.roleProgressToWin : 100f)}%",
                 font, 36, 870, 435, 850, 65);
             int seconds = Mathf.Max(0, Mathf.RoundToInt(summary.elapsedSeconds));
             MakeText("ClearRecords", $"個性 {Mathf.RoundToInt(summary.individuality)}　｜　平和度 {Mathf.RoundToInt(summary.peace)}\n時間 {seconds / 60}:{seconds % 60:00}　お題 {summary.tasksCompleted}回　発覚 {summary.timesCaught}回",
                 font, 25, 870, 510, 850, 80);
-            MakeText("ClearChief", ramen ? "村長「……まあ、一杯くらいは、\nいただこうか。」" : "村長「……それが、\nお前の選んだ道か。」",
+            MakeText("ClearChief", "村長「" + ClearResultText.ChiefLine(role) + "」",
                 font, 30, 1130, 655, 600, 145);
             StyleButton("RetryButton", "もう一度あそぶ", wood, 850);
             StyleButton("TitleButton", "タイトルへ", wood, 1330);
