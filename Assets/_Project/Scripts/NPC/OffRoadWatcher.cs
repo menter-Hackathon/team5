@@ -14,7 +14,8 @@ namespace Team5.NPC
         [SerializeField] private int height;
         [SerializeField, HideInInspector] private byte[] mask; // 1 = 道（歩いてよい）
         [SerializeField] private float reportInterval = 0.5f;
-        [SerializeField] private float graceSeconds = 0.6f;     // 道の角を少しかすめたくらいでは反応しない
+        [SerializeField] private float graceSeconds = 0f;       // 道からはみ出したらすぐ「道から外れた」
+        [SerializeField] private int erodeCells = 3;            // 焼いた mask は道の外へ 1m 広げてあるので、実行時にこのマス数だけ削って道の幅に近づける
 
         public static bool IsOff { get; private set; }
 
@@ -34,6 +35,45 @@ namespace Team5.NPC
             int y = Mathf.FloorToInt((world.z - origin.y) / cellSize);
             if (x < 0 || y < 0 || x >= width || y >= height) return false;
             return mask[y * width + x] != 0;
+        }
+
+        private void Awake()
+        {
+            if (mask == null || mask.Length != width * height || erodeCells <= 0) return;
+            // 道の外側にはみ出した分を削る（縁から erodeCells マス以内の道マスを「道でない」にする）
+            var src = mask;
+            var dst = new byte[src.Length];
+            int r = erodeCells;
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                {
+                    if (src[y * width + x] == 0) continue;
+                    bool keep = true;
+                    for (int dy = -r; dy <= r && keep; dy++)
+                        for (int dx = -r; dx <= r; dx++)
+                        {
+                            if (dx * dx + dy * dy > r * r) continue;
+                            int xx = x + dx, yy = y + dy;
+                            if (xx < 0 || yy < 0 || xx >= width || yy >= height || src[yy * width + xx] == 0) { keep = false; break; }
+                        }
+                    if (keep) dst[y * width + x] = 1;
+                }
+            // 拾う物・お題の場所・作業台のまわり（元から道あつかいの所）は削らない
+            int keepR = Mathf.CeilToInt(3f / cellSize);
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (!(mb is Team5.Player.IInteractable)) continue;
+                int cx = Mathf.FloorToInt((mb.transform.position.x - origin.x) / cellSize);
+                int cy = Mathf.FloorToInt((mb.transform.position.z - origin.y) / cellSize);
+                for (int dy = -keepR; dy <= keepR; dy++)
+                    for (int dx = -keepR; dx <= keepR; dx++)
+                    {
+                        int xx = cx + dx, yy = cy + dy;
+                        if (xx < 0 || yy < 0 || xx >= width || yy >= height || dx * dx + dy * dy > keepR * keepR) continue;
+                        if (src[yy * width + xx] != 0) dst[yy * width + xx] = 1;
+                    }
+            }
+            mask = dst;
         }
 
         private void OnDisable() => IsOff = false;
