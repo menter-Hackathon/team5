@@ -1,14 +1,10 @@
-# 行動別の効果音を設定する
+# 行動別の効果音
 
-このPRは再生処理と設定手順のみを含みます。外部の音源ファイルは配布しません。
-未設定の場合、既存の自作SEはそのまま使われ、追加のループ音は鳴りません。
+8種類のMP3、Unityのmeta、AudioLibrary.assetの割り当てを同梱しています。ブランチを取得してUnityで開くとインポートされるため、手動での音源追加は不要です。
 
-## 設定
+音源は `Assets/_Project/Audio/SE/LocalSoundEffectLab/` に配置しています（既存のフォルダ名を維持）。差し替える場合は `Assets/_Project/Data/Audio/AudioLibrary.asset` のInspectorで該当IDのClipを変更してください。
 
-1. 利用規約を確認し、使用する音源を各自で入手する。効果音ラボの「ぷよん」「パッ」を使用する場合は https://soundeffect-lab.info/ から入手する。
-2. UnityのProjectに `Assets/_Project/Audio/SE/LocalSoundEffectLab` フォルダを作り、音源を入れる。このフォルダはGit対象外。
-3. `Assets/_Project/Data/Audio/AudioLibrary.asset` を選択する。
-4. Inspectorの `Se` にあるPickup・Equip・TaskAssignedのClipを差し替え、残り5件は配列の末尾に追加する。IDは選択肢から選ぶ。同じIDの項目を重複させない。
+## 割り当て
 
 | ID | 音源名 | 再生タイミング |
 |---|---|---|
@@ -23,7 +19,7 @@
 
 調理・素振り・食事・時計は、動作中だけループします。中断・完了・シーン遷移・ゲーム終了で停止し、ポーズ中は一時停止します。麺などそれ以外のレシピには既存のCraft音を使用します。お題の成功・失敗の音も従来どおりです。
 
-外部音源を参照したAudioLibrary.assetは各自のローカル設定です。その変更をそのまま公開PRへ入れないでください。配布用ビルドには設定した音源が含まれるため、使用する全素材の利用条件に従ってください。
+音源はこのゲームの演出に組み込んで使用しています。素材単体の再配布や、他作品への転用許諾を意味しません。出典・利用条件は [credits.md](credits.md) を確認してください。
 
 ## 確認
 

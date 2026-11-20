@@ -53,6 +53,3 @@ crashlytics-build.properties
 Thumbs.db
 *.slnx
 
-# 外部効果音のローカル試聴用（素材ファイルの公開を防ぐ）
-/Assets/_Project/Audio/SE/LocalSoundEffectLab/
-/Assets/_Project/Audio/SE/LocalSoundEffectLab.meta

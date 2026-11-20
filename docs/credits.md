@@ -30,10 +30,9 @@
 | SE_ParameterDown.wav | SE | 自作（`tools/audio/gen_audio.py`） | チームのオリジナル（表記不要） | 数値が下がる：下がる音 | 1回だけ |
 
 
-### ローカルの効果音差し替え（未公開）
+### ゲームに組み込んだ効果音
 
-ユーザー提供のMP3を `Assets/_Project/Audio/SE/LocalSoundEffectLab/` に配置。フォルダとmetaはGit対象外。
-`Data/Audio/AudioLibrary.asset` の現在の差し替え参照もローカル用なので、そのまま公開しない。
+ユーザー提供のMP3を `Assets/_Project/Audio/SE/LocalSoundEffectLab/` に配置し、metaと `Data/Audio/AudioLibrary.asset` の参照設定を同梱しています。
 元の自作音源は削除していません。
 
 | 元ファイル | 用途 | 出典 |
@@ -47,4 +46,5 @@
 | 剣の素振り2.mp3 | 素振りのお題作業中 | ユーザー提供・個別出典未確認 |
 | ラーメンを食べる.mp3 | 食堂のお題作業中 | ユーザー提供・個別出典未確認 |
 
-効果音ラボ規約：https://soundeffect-lab.info/agreement/ （商用利用可・素材の再配布禁止）。
+効果音ラボ規約：https://soundeffect-lab.info/agreement/ （商用利用可。アプリへの操作音の組み込みは音源ファイルが露出していても可。素材単体の再配布は禁止）。
+同梱音源はゲーム内の演出に使用しています。素材の権利は各権利者に帰属し、コードと同じ条件で素材を再利用できるわけではありません。
