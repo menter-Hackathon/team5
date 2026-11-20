@@ -27,7 +27,7 @@
 | `well` | 井戸 | 水を汲む（素材 `water`） | ramen_chef / band_man |
 | `forest` | 森 | 入口の広場で薪を拾う（表）。奥（禁止ゾーン・死角）に頭タオル | 全員 |
 | `home` | 実家 | 家の前を掃除する（表：`sweep_home`）（M2） | band_man |
-| `barn` | 納屋（作業台） | リュートを作る・曲を作る（裏）（M2） | band_man |
+| `barn` | 納屋（作業台） | 楽譜を書く・演奏準備・初めての曲で演奏（裏）（M2） | band_man |
 | `forge` | 鍛冶場 | ハンマーを振る（表：`hammer`）。鉱石の届け先（M2） | librarian |
 | `library` | 古い書庫（作業台） | 本を直す・本棚を作る・図書館を開く（裏）（M2） | librarian |
 | `attic` | 屋根裏（作業台） | 実家の屋根裏。ゲーム盤・攻略ノート・招待状を作る（裏）（M2） | progamer |
