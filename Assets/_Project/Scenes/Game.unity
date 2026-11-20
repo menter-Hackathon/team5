@@ -1251,10 +1251,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: InventoryPanel
       objectReference: {fileID: 0}
-    - target: {fileID: 8139800286906709264, guid: 84bb9f5cb01b4419ea786f7f4310c1b6, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20618,17 +20614,9 @@ PrefabInstance:
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 2117599173}
-    - target: {fileID: 4469084908447614639, guid: 34754b88a4c5e425e8012652b34afd95, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -11
-      objectReference: {fileID: 0}
     - target: {fileID: 5632453657872452809, guid: 34754b88a4c5e425e8012652b34afd95, type: 3}
       propertyPath: m_Name
       value: CameraRig
-      objectReference: {fileID: 0}
-    - target: {fileID: 7565275245411942049, guid: 34754b88a4c5e425e8012652b34afd95, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -11
       objectReference: {fileID: 0}
     - target: {fileID: 8371256898354048002, guid: 34754b88a4c5e425e8012652b34afd95, type: 3}
       propertyPath: m_LocalPosition.x
@@ -20669,22 +20657,6 @@ PrefabInstance:
     - target: {fileID: 8371256898354048002, guid: 34754b88a4c5e425e8012652b34afd95, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8677579090347338451, guid: 34754b88a4c5e425e8012652b34afd95, type: 3}
-      propertyPath: field of view
-      value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 8677579090347338451, guid: 34754b88a4c5e425e8012652b34afd95, type: 3}
-      propertyPath: far clip plane
-      value: 5000
-      objectReference: {fileID: 0}
-    - target: {fileID: 8677579090347338451, guid: 34754b88a4c5e425e8012652b34afd95, type: 3}
-      propertyPath: near clip plane
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8677579090347338451, guid: 34754b88a4c5e425e8012652b34afd95, type: 3}
-      propertyPath: orthographic size
-      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
