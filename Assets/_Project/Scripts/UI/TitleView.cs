@@ -20,7 +20,9 @@ namespace Team5.UI
         private void Start()
         {
             // ロゴ → ボタン → チェック → 補足 の順にすべり込む
-            string[] order = { "Logo", "StartButton", "Tutorial", "Note", "Keys", "Team" };
+            // 操作キーの案内（↑↓ 選ぶ / Enter 決める）はマウスでも分かるので出さない
+            if (titlePanel != null && titlePanel.transform.Find("Keys") is Transform keys) keys.gameObject.SetActive(false);
+            string[] order = { "Logo", "StartButton", "Tutorial", "Note", "Team" };
             for (int i = 0; i < order.Length; i++)
             {
                 if (titlePanel != null && titlePanel.transform.Find(order[i]) is RectTransform rect)
